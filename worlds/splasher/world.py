@@ -1,0 +1,73 @@
+from typing import Any
+
+from Options import Toggle
+from rule_builder.rules import Has
+from worlds.AutoWorld import World
+from worlds.splasher.web import SplasherWebWorld
+from . import regions
+from .items import SplasherItem, SplasherItemGroupName
+from .locations import SplasherLocation
+from .options import SplasherOptions,RandomizePowers
+
+class SplasherWorld(World):
+    """
+    Splasher is a 2D action-plateformer ...
+    """
+    game = "Splasher"
+    options_dataclass = SplasherOptions
+    web = SplasherWebWorld()
+
+    origin_region_name = "Hub"
+    base_id: int = 0xF4A201
+
+    options: SplasherOptions
+
+    item_name_to_id = {name:SplasherItem.get_code(name) for name in SplasherItem.keys()}
+    location_name_to_id = SplasherLocation.get_code_table()
+    
+
+    def create_regions(self) -> None:
+        regions.create_all_regions(self)
+        regions.connect_regions(self)
+        SplasherLocation.create_locations(self)
+
+    def create_item(self, name: str) -> SplasherItem:
+        return SplasherItem(name, self.player)
+
+    def create_items(self) -> None:
+        itempool: list[SplasherItem] = [SplasherItem("Splasher", self.player) for _ in range(154)]
+
+        for name,enabled in {
+            SplasherItemGroupName.POWERS: self.options.randomize_powers >= RandomizePowers.option_on,
+        }.items():  
+            if enabled:
+                itempool += name.create_items(self.player)
+
+
+        itempool += [
+            SplasherItem(
+                SplasherItemGroupName.TRAPS.get_random(self.multiworld.random) 
+                    if self.multiworld.random.randint(0, 99) <= self.options.trap_chance 
+                    else SplasherItemGroupName.get_filler(
+                        self.multiworld.random, 
+                        self.options.include_essence_items == Toggle.option_true
+                    ), 
+                self.player
+            ) for _ in range(len(self.multiworld.get_unfilled_locations(self.player)))
+        ]
+
+        self.multiworld.itempool += itempool
+
+    def fill_slot_data(self) -> dict[str, Any]:
+        return self.options.as_dict(
+            "randomize_powers", 
+            "include_essence_items",
+            "randomize_checkpoints",
+            "randomize_golden_splashers",
+            "splashers_goal",
+            "include_medals",
+            "include_level_clear"
+        )       
+
+    def set_rules(self):
+        self.set_completion_rule(Has(SplasherItem.victory)) 
