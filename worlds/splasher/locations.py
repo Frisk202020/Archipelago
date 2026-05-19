@@ -1,19 +1,27 @@
 from __future__ import annotations
-from abc import ABC, abstractmethod
-from typing import ClassVar, NamedTuple
 
-from BaseClasses import Location
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, ClassVar, NamedTuple
 from enum import StrEnum
 
+from BaseClasses import Location
+from rule_builder.rules import Has, HasAll
 from worlds.splasher.items import PowerItem, SplasherItem
+from worlds.splasher.utils import SplasherUtils
 from .regions import SplasherLevelName
-from .world import SplasherWorld
 from .options import RandomizePowers,IncludeMedals
 
+if TYPE_CHECKING:
+    from .world import SplasherWorld
+
 class SplasherLocation(Location):
-    game = "Splasher"
+    game = SplasherUtils.splasher
     def __init__(self, world: SplasherWorld, data: _LocationData):
         Location.__init__(self, world.player, data.name, data.code, world.get_region(data.region))
+        
+        access_rule = HasAll(*data.required_items)
+        if data.require_splashers:
+            access_rule &= Has(SplasherUtils.splasher, world.options.splashers_goal.value)
 
     @staticmethod
     def get_code_table() -> dict[str, int]:
@@ -23,6 +31,7 @@ class SplasherLocation(Location):
     def _from_list(world: SplasherWorld, data: list[_LocationData]) -> list[SplasherLocation]:
         return [SplasherLocation(world, x) for x in data]
     
+    # need to add locations to regions instead of returning
     @staticmethod
     def create_locations(world: SplasherWorld) -> list[SplasherLocation]:
         locations: list[SplasherLocation] = SplasherLocation._from_list(world, _Clears.get())
@@ -54,7 +63,7 @@ class SplasherLocation(Location):
 
 class _LocationName(StrEnum):
     CLEAR = "Clear"
-    SPLASHER = "Splasher"
+    SPLASHER = SplasherUtils.splasher
     BRONZE = "Bronze Medal"
     SILVER = "Silver Medal"
     GOLD = "Gold Medal"
@@ -73,40 +82,43 @@ class _LocationData:
     region: str
     code: int
     required_items: list[PowerItem]
+    require_splashers: bool
+
     name_to_id: ClassVar[dict[str, int]] = {}
-    __next: ClassVar[int] = SplasherWorld.base_id
+    __next: ClassVar[int] = SplasherUtils.base_id
 
     def __init__(self, name: _LocationName, inner: _InnerLocationData, name_suffix: str|None):
         region = SplasherLevelName.level(inner.level_id)
         self.name = f"{region} : {name}{"" if name_suffix is None else f'({name_suffix})'}"
         self.region = region
         self.code = _LocationData.__next
-        self.required_items
+        self.required_items = inner.required_items
+        self.require_splashers = inner.require_splashers
 
         _LocationData.__next += 1
         _LocationData.name_to_id[name] = self.code
 
 class _LocationDataContainer(ABC):
-    _data: list[_InnerLocationData]
+    _data: list[_InnerLocationData]|None = None
 
     @classmethod
     def get(cls) -> list[_LocationData]:
-        if (len(cls._data) == 0):
+        if (cls._data is None):
             cls.init()
 
-        return [_LocationData(cls.name(), x, cls.suffix()) for x in cls._data]
+        return [] if cls._data is None else [_LocationData(cls.name(), x, cls.suffix()) for x in cls._data]
     
     @staticmethod
     def suffix() -> str|None:
         return None
-    
-    @abstractmethod
+
     @staticmethod
+    @abstractmethod
     def name() -> _LocationName:
         ...
 
-    @abstractmethod
     @classmethod
+    @abstractmethod
     def init(cls) -> None:
         ...
 
@@ -135,7 +147,7 @@ class _GoldenSplashers(_Splasher):
 class _FirstSplasher(_Splasher):
     @staticmethod
     def suffix() -> str | None:
-        return "(First)"
+        return "First"
 
     @classmethod
     def init(cls) -> None:
@@ -154,7 +166,7 @@ class _FirstSplasher(_Splasher):
 class _SecondSplasher(_Splasher):
     @staticmethod
     def suffix() -> str | None:
-        return "(Second)"
+        return "Second"
     
     @classmethod
     def init(cls) -> None:
@@ -173,7 +185,7 @@ class _SecondSplasher(_Splasher):
 class _ThirdSplasher(_Splasher):
     @staticmethod
     def suffix() -> str | None:
-        return "(Third)"
+        return "Third"
     
     @classmethod
     def init(cls) -> None:
@@ -192,7 +204,7 @@ class _ThirdSplasher(_Splasher):
 class _FourthSplasher(_Splasher):
     @staticmethod
     def suffix() -> str | None:
-        return "(Fourth)"
+        return "Fourth"
     
     @classmethod
     def init(cls) -> None:
@@ -211,7 +223,7 @@ class _FourthSplasher(_Splasher):
 class _FifthSplasher(_Splasher):
     @staticmethod
     def suffix() -> str | None:
-        return "(Fifth)"
+        return "Fifth"
     
     @classmethod
     def init(cls) -> None:
@@ -228,7 +240,7 @@ class _FifthSplasher(_Splasher):
 class _SixthSplasher(_Splasher):
     @staticmethod
     def suffix() -> str | None:
-        return "(Sixth)"
+        return "Sixth"
     
     @classmethod
     def init(cls) -> None:
@@ -254,6 +266,10 @@ class _Clears(_LocationDataContainer):
         ] + [
             _InnerLocationData(21, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY], True)
         ]
+
+    @staticmethod
+    def name() -> _LocationName:
+        return _LocationName.CLEAR
 
 class _Platinums(_LocationDataContainer):
     @classmethod

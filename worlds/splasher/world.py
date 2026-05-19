@@ -3,6 +3,7 @@ from typing import Any
 from Options import Toggle
 from rule_builder.rules import Has
 from worlds.AutoWorld import World
+from worlds.splasher.utils import SplasherUtils
 from worlds.splasher.web import SplasherWebWorld
 from . import regions
 from .items import SplasherItem, SplasherItemGroupName
@@ -13,13 +14,12 @@ class SplasherWorld(World):
     """
     Splasher is a 2D action-plateformer ...
     """
-    game = "Splasher"
-    options_dataclass = SplasherOptions
+    game = SplasherUtils.splasher
     web = SplasherWebWorld()
 
     origin_region_name = "Hub"
-    base_id: int = 0xF4A201
 
+    options_dataclass = SplasherOptions
     options: SplasherOptions
 
     item_name_to_id = {name:SplasherItem.get_code(name) for name in SplasherItem.keys()}
@@ -35,7 +35,8 @@ class SplasherWorld(World):
         return SplasherItem(name, self.player)
 
     def create_items(self) -> None:
-        itempool: list[SplasherItem] = [SplasherItem("Splasher", self.player) for _ in range(154)]
+        total_splashers = SplasherUtils.regular_splashers + SplasherUtils.golden_splashers if self.options.randomize_golden_splashers else SplasherUtils.regular_splashers
+        itempool: list[SplasherItem] = [SplasherItem(SplasherUtils.splasher, self.player) for _ in range(total_splashers)]
 
         for name,enabled in {
             SplasherItemGroupName.POWERS: self.options.randomize_powers >= RandomizePowers.option_on,

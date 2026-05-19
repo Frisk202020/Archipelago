@@ -1,9 +1,11 @@
 from BaseClasses import Tutorial
 from worlds.AutoWorld import WebWorld
-from .options import option_groups
+from worlds.splasher.utils import SplasherUtils
+from .options import SplasherOptionExports
+
 
 class SplasherWebWorld(WebWorld):
-    game = "Splasher"
+    game = SplasherUtils.splasher
     theme = "partyTime"
 
     setup_en = Tutorial(
@@ -24,5 +26,5 @@ class SplasherWebWorld(WebWorld):
     )
 
     tutorials = [setup_en, setup_fr]
-    option_groups = option_groups
+    option_groups = SplasherOptionExports.option_groups
     options_presets = {}

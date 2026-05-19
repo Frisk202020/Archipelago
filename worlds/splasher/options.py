@@ -1,5 +1,8 @@
-from Options import OptionGroup, Toggle,Choice,Range, PerGameCommonOptions
+from typing import ClassVar
 from dataclasses import dataclass
+
+from Options import DefaultOnToggle, OptionGroup, Choice, Range, PerGameCommonOptions
+from worlds.splasher.utils import SplasherUtils
 
 """
 TODO (future versions) : implement level randomization options:
@@ -20,8 +23,9 @@ class RandomizeCheckpoints(Choice):
     option_off = 0
     option_required = 1
     option_chaotic = 2
+    default = option_off
 
-class IncludeEssenceItem(Toggle):
+class IncludeEssenceItem(DefaultOnToggle):
     """
     Determine if the pool includes essence items in the junk pool. 
     These are stored until a manual release inside a level, upon which these are added to the current counter.
@@ -40,8 +44,9 @@ class RandomizePowers(Choice):
     option_off = 0
     option_on = 1
     option_progressive = 2
+    default = option_progressive
 
-class RandomizeGoldenSplashers(Toggle):
+class RandomizeGoldenSplashers(DefaultOnToggle):
     """
     Determine if golden splashers are added in the item pool
     """
@@ -54,6 +59,7 @@ class TrapChance(Range):
     display_name = "Trap Chance"
     range_start = 0
     range_end = 100
+    default = 0
 
 class IncludeMedals(Choice):
     """
@@ -71,6 +77,7 @@ class IncludeMedals(Choice):
     option_silver = 2
     option_gold = 3
     option_platinum = 4
+    default = option_off
 
 class SplashersGoal(Range):
     """
@@ -78,7 +85,8 @@ class SplashersGoal(Range):
     """
     display_name = "Splashers Goal"
     range_start = 0
-    range_end = 154   
+    range_end = SplasherUtils.regular_splashers + SplasherUtils.golden_splashers 
+    default = 80
 
 @dataclass
 class SplasherOptions(PerGameCommonOptions):
@@ -90,18 +98,20 @@ class SplasherOptions(PerGameCommonOptions):
     include_medals: IncludeMedals
     trap_chance: TrapChance
 
-option_groups = [
-    OptionGroup(
-        "Randomizer options",
-        [RandomizeCheckpoints, RandomizePowers, RandomizeGoldenSplashers]
-    ), OptionGroup(
-        "Goal",
-        [SplashersGoal]
-    ), OptionGroup(
-        "Optional items",
-        [IncludeEssenceItem]
-    ), OptionGroup(
-        "Traps",
-        [TrapChance]
-    )
-]
+# Can't attach option_groups in SplasherOptions as it crashes Generate Template Options
+class SplasherOptionExports:
+    option_groups: ClassVar[list[OptionGroup]] = [
+        OptionGroup(
+            "Randomizer options",
+            [RandomizeCheckpoints, RandomizePowers, RandomizeGoldenSplashers]
+        ), OptionGroup(
+            "Goal",
+            [SplashersGoal]
+        ), OptionGroup(
+            "Optional items",
+            [IncludeEssenceItem]
+        ), OptionGroup(
+            "Traps",
+            [TrapChance]
+        )
+    ]

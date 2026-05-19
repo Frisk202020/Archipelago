@@ -1,7 +1,10 @@
-from typing import Callable, ClassVar
+from __future__ import annotations
 
+from typing import TYPE_CHECKING, Callable, ClassVar
 from BaseClasses import Region 
-from .world import SplasherWorld
+
+if TYPE_CHECKING:
+    from .world import SplasherWorld
 
 splasher_hub = "HUB"
 
@@ -26,6 +29,10 @@ class SplasherLevelName:
     @staticmethod
     def for_all[T](f: Callable[[str], T]) -> list[T]:
         return [f(x) for x in SplasherLevelName.__level_name]
+    
+    @staticmethod
+    def for_all_indexed[T](f: Callable[[str, int], T]) -> list[T]:
+        return [f(SplasherLevelName.__level_name[i], i) for i in range(len(SplasherLevelName.__level_name))]
 
 def create_all_regions(world: SplasherWorld):
     world.multiworld.regions += [Region(splasher_hub, world.player, world.multiworld)]

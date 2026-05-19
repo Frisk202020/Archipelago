@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from _collections_abc import dict_keys
 from typing import ClassVar
-from BaseClasses import Item,ItemClassification
 from enum import StrEnum
 from random import Random
-from .world import SplasherWorld
+
+from BaseClasses import Item,ItemClassification
+from worlds.splasher.utils import SplasherUtils
 from .regions import SplasherLevelName
 
 class SplasherItemGroupName(StrEnum):
@@ -44,8 +45,10 @@ class _ItemGroup:
     __groups: ClassVar[Group] = {}
 
     def __init__(self, names: list[str], classification: ItemClassification=ItemClassification.progression):
-        self.__names = names
-        self.__classification = classification
+        self.names = names
+        self.classification = classification
+        self.x = 1
+        
 
     @staticmethod
     def groups() -> Group:
@@ -71,7 +74,7 @@ class _ItemGroup:
 class _ItemData:
     code: int
     classification: ItemClassification
-    __next: ClassVar[int] = SplasherWorld.base_id
+    __next: ClassVar[int] = SplasherUtils.base_id
 
     def __init__(self, classification: ItemClassification = ItemClassification.progression):
         self.code = _ItemData.__next
@@ -83,6 +86,9 @@ class _ItemData:
     @staticmethod
     def data_table() -> dict[str, _ItemData]: 
         if (len(_ItemData.__data_table) == 0):
+            _ItemData.__data_table[SplasherItem.victory] = _ItemData()
+            _ItemData.__data_table[SplasherUtils.splasher] = _ItemData()
+
             for group in _ItemGroup.groups().values():
                 for name in group.names:
                     _ItemData.__data_table[name] = _ItemData(group.classification)
@@ -90,7 +96,7 @@ class _ItemData:
         return _ItemData.__data_table
 
 class SplasherItem(Item):
-    game = "Splasher"
+    game = SplasherUtils.splasher
     victory: ClassVar[str] = "Freedom"
 
     def __init__(self, name: str, player: int):
