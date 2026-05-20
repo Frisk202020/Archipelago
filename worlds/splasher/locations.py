@@ -6,7 +6,7 @@ from enum import StrEnum
 
 from BaseClasses import Location
 from rule_builder.rules import Has, HasAll
-from worlds.splasher.items import PowerItem, SplasherItem
+from worlds.splasher.items import SplasherPowerItem, SplasherItem
 from worlds.splasher.utils import SplasherUtils
 from .regions import SplasherLevelName
 from .options import RandomizePowers,IncludeMedals
@@ -19,7 +19,7 @@ class SplasherLocation(Location):
     def __init__(self, world: SplasherWorld, data: _LocationData):
         Location.__init__(self, world.player, data.name, data.code, world.get_region(data.region))
         
-        access_rule = HasAll(*data.required_items)
+        access_rule = HasAll(*SplasherPowerItem.literals())
         if data.require_splashers:
             access_rule &= Has(SplasherUtils.splasher, world.options.splashers_goal.value)
 
@@ -33,7 +33,7 @@ class SplasherLocation(Location):
     
     # need to add locations to regions instead of returning
     @staticmethod
-    def create_locations(world: SplasherWorld) -> list[SplasherLocation]:
+    def create_locations(world: SplasherWorld) -> None:
         locations: list[SplasherLocation] = SplasherLocation._from_list(world, _Clears.get())
         locations[21].place_locked_item(SplasherItem(SplasherItem.victory, world.player)) # place on last level clear
 
@@ -59,7 +59,9 @@ class SplasherLocation(Location):
         if world.options.include_medals >= IncludeMedals.option_silver:
             locations += SplasherLocation._from_list(world, _Bronzes.get())
 
-        return locations
+        for location in  locations:
+            if location.parent_region is not None:
+                location.parent_region.locations.append(location)
 
 class _LocationName(StrEnum):
     CLEAR = "Clear"
@@ -74,14 +76,14 @@ class _LocationName(StrEnum):
 
 class _InnerLocationData(NamedTuple):
     level_id: int
-    required_items: list[PowerItem]
+    required_items: list[SplasherPowerItem]
     require_splashers: bool = False
 
 class _LocationData:
     name: str
     region: str
     code: int
-    required_items: list[PowerItem]
+    required_items: list[SplasherPowerItem]
     require_splashers: bool
 
     name_to_id: ClassVar[dict[str, int]] = {}
@@ -135,13 +137,13 @@ class _GoldenSplashers(_Splasher):
     @classmethod
     def init(cls) -> None:
         cls._data = [
-            _InnerLocationData(i, [PowerItem.WATER]) for i in range(0, 5)
+            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(0, 5)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY]) for i in range(5, 14)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY]) for i in range(14, 21)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
         ] + [
-            _InnerLocationData(21, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY], True)
+            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
         ]
 
 class _FirstSplasher(_Splasher):
@@ -154,13 +156,13 @@ class _FirstSplasher(_Splasher):
         cls._data = [
             _InnerLocationData(0, [])
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER]) for i in range(1, 5)
+            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(1, 5)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY]) for i in range(5, 14)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY]) for i in range(14, 21)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
         ] + [
-            _InnerLocationData(21, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY], True)
+            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
         ]
 
 class _SecondSplasher(_Splasher):
@@ -173,13 +175,13 @@ class _SecondSplasher(_Splasher):
         cls._data = [
             _InnerLocationData(0, [])
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER]) for i in range(1, 5)
+            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(1, 5)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY]) for i in range(5, 14)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY]) for i in range(14, 21)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
         ] + [
-            _InnerLocationData(21, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY], True)
+            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
         ]
 
 class _ThirdSplasher(_Splasher):
@@ -192,13 +194,13 @@ class _ThirdSplasher(_Splasher):
         cls._data = [
             _InnerLocationData(0, [])
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER]) for i in range(1, 5)
+            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(1, 5)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY]) for i in range(5, 14)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY]) for i in range(14, 21)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
         ] + [
-            _InnerLocationData(21, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY], True)
+            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
         ]
 
 class _FourthSplasher(_Splasher):
@@ -211,13 +213,13 @@ class _FourthSplasher(_Splasher):
         cls._data = [
             _InnerLocationData(0, [])
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER]) for i in range(1, 5)
+            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(1, 5)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY]) for i in range(5, 14)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY]) for i in range(14, 21)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
         ] + [
-            _InnerLocationData(21, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY], True)
+            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
         ]
 
 class _FifthSplasher(_Splasher):
@@ -228,13 +230,13 @@ class _FifthSplasher(_Splasher):
     @classmethod
     def init(cls) -> None:
         cls._data = [
-            _InnerLocationData(i, [PowerItem.WATER]) for i in range(1, 5)
+            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(1, 5)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY]) for i in range(5, 14)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY]) for i in range(14, 21)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
         ] + [
-            _InnerLocationData(21, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY], True)
+            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
         ]
 
 class _SixthSplasher(_Splasher):
@@ -245,26 +247,26 @@ class _SixthSplasher(_Splasher):
     @classmethod
     def init(cls) -> None:
         cls._data = [
-            _InnerLocationData(i, [PowerItem.WATER]) for i in range(1, 5)
+            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(1, 5)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY]) for i in range(5, 14)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY]) for i in range(14, 21)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
         ] + [
-            _InnerLocationData(21, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY], True)
+            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
         ]
 
 class _Clears(_LocationDataContainer):
     @classmethod
     def init(cls) -> None:
         cls._data = [
-            _InnerLocationData(i, [PowerItem.WATER]) for i in range(0, 5)
+            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(0, 5)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY]) for i in range(5, 14)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY]) for i in range(14, 21)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
         ] + [
-            _InnerLocationData(21, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY], True)
+            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
         ]
 
     @staticmethod
@@ -275,57 +277,57 @@ class _Platinums(_LocationDataContainer):
     @classmethod
     def init(cls) -> None:
         cls._data = [
-            _InnerLocationData(i, [PowerItem.WATER]) for i in range(0, 5)
+            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(0, 5)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY]) for i in range(5, 14)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY]) for i in range(14, 21)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
         ] + [
-            _InnerLocationData(21, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY], True)
+            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
         ]
 
 class _Golds(_LocationDataContainer):
     @classmethod
     def init(cls) -> None:
         cls._data = [
-            _InnerLocationData(i, [PowerItem.WATER]) for i in range(0, 5)
+            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(0, 5)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY]) for i in range(5, 14)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY]) for i in range(14, 21)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
         ] + [
-            _InnerLocationData(21, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY], True)
+            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
         ]
 
 class _Silvers(_LocationDataContainer):
     @classmethod
     def init(cls) -> None:
         cls._data = [
-            _InnerLocationData(i, [PowerItem.WATER]) for i in range(0, 5)
+            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(0, 5)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY]) for i in range(5, 14)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY]) for i in range(14, 21)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
         ] + [
-            _InnerLocationData(21, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY], True)
+            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
         ]
 
 class _Bronzes(_LocationDataContainer):
     @classmethod
     def init(cls) -> None:
         cls._data = [
-            _InnerLocationData(i, [PowerItem.WATER]) for i in range(0, 5)
+            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(0, 5)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY]) for i in range(5, 14)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
         ] + [
-            _InnerLocationData(i, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY]) for i in range(14, 21)
+            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
         ] + [
-            _InnerLocationData(21, [PowerItem.WATER, PowerItem.STICKY, PowerItem.BOUNCY], True)
+            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
         ]
 
 class _Powers(_LocationDataContainer):
     @classmethod
     def init(cls) -> None:
         cls.__data = [
-            _InnerLocationData(0, []), _InnerLocationData(5, [PowerItem.WATER]), _InnerLocationData(13, [PowerItem.WATER, PowerItem.STICKY])
+            _InnerLocationData(0, []), _InnerLocationData(5, [SplasherPowerItem.WATER]), _InnerLocationData(13, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY])
         ]

@@ -31,11 +31,15 @@ class SplasherItemGroupName(StrEnum):
 
         return group.get_random(rng) 
     
-class PowerItem(StrEnum):
+class SplasherPowerItem(StrEnum):
     WATER = "Water Unlock"
     STICKY = "Sticky Paint Unlock"
     BOUNCY = "Bouncy Paint Unlock"
     CAPACITY = "Progressive Sauce Capacity"
+
+    @classmethod
+    def literals(cls) -> list[str]:
+        return [item.value for item in cls]
 
 class _ItemGroup:
     classification: ItemClassification
@@ -54,7 +58,7 @@ class _ItemGroup:
     def groups() -> Group:
         if (len(_ItemGroup.__groups) == 0):
             _ItemGroup.__groups = {
-                SplasherItemGroupName.POWERS: _ItemGroup(list(PowerItem)), 
+                SplasherItemGroupName.POWERS: _ItemGroup(SplasherPowerItem.literals()), 
                 SplasherItemGroupName.FILLERS: _ItemGroup([
                     "Job Promotion"
                 ], ItemClassification.filler), SplasherItemGroupName.TRAPS: _ItemGroup([

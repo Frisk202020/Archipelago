@@ -17,7 +17,7 @@ class SplasherWorld(World):
     game = SplasherUtils.splasher
     web = SplasherWebWorld()
 
-    origin_region_name = "Hub"
+    origin_region_name = SplasherUtils.origin
 
     options_dataclass = SplasherOptions
     options: SplasherOptions
@@ -60,15 +60,8 @@ class SplasherWorld(World):
         self.multiworld.itempool += itempool
 
     def fill_slot_data(self) -> dict[str, Any]:
-        return self.options.as_dict(
-            "randomize_powers", 
-            "include_essence_items",
-            "randomize_checkpoints",
-            "randomize_golden_splashers",
-            "splashers_goal",
-            "include_medals",
-            "include_level_clear"
-        )       
+        option_names = [key for key in SplasherOptions.__annotations__.keys()]
+        return self.options.as_dict(*option_names)       
 
     def set_rules(self):
         self.set_completion_rule(Has(SplasherItem.victory)) 

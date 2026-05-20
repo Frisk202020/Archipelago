@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Callable, ClassVar
-from BaseClasses import Region 
+from BaseClasses import Region
+from worlds.splasher.utils import SplasherUtils 
 
 if TYPE_CHECKING:
     from .world import SplasherWorld
-
-splasher_hub = "HUB"
 
 class SplasherLevelName:
     __level_name: ClassVar[list[str]] = [
@@ -35,9 +34,9 @@ class SplasherLevelName:
         return [f(SplasherLevelName.__level_name[i], i) for i in range(len(SplasherLevelName.__level_name))]
 
 def create_all_regions(world: SplasherWorld):
-    world.multiworld.regions += [Region(splasher_hub, world.player, world.multiworld)]
+    world.multiworld.regions += [Region(SplasherUtils.origin, world.player, world.multiworld)]
     world.multiworld.regions += SplasherLevelName.for_all(lambda x: Region(x, world.player, world.multiworld))
 
 def connect_regions(world: SplasherWorld):
-    hub = world.get_region(splasher_hub)
+    hub = world.get_region(SplasherUtils.origin)
     SplasherLevelName.for_all(lambda x: hub.connect(world.get_region(x), f"{x} : Entrance"))
