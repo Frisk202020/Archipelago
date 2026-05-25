@@ -1,333 +1,128 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, ClassVar, NamedTuple
-from enum import StrEnum
+from enum import IntEnum, StrEnum
+from typing import TYPE_CHECKING, ClassVar
 
 from BaseClasses import Location
-from rule_builder.rules import Has, HasAll
-from worlds.splasher.items import SplasherPowerItem, SplasherItem
+from worlds.splasher.options import IncludeMedals, RandomizePowers, SplasherOptions
+from worlds.splasher.regions import SplasherLevelName
 from worlds.splasher.utils import SplasherUtils
-from .regions import SplasherLevelName
-from .options import RandomizePowers,IncludeMedals
 
 if TYPE_CHECKING:
     from .world import SplasherWorld
 
 class SplasherLocation(Location):
     game = SplasherUtils.splasher
-    def __init__(self, world: SplasherWorld, data: _LocationData):
-        Location.__init__(self, world.player, data.name, data.code, world.get_region(data.region))
-        
-        access_rule = HasAll(*SplasherPowerItem.literals())
-        if data.require_splashers:
-            access_rule &= Has(SplasherUtils.splasher, world.options.splashers_goal.value)
 
     @staticmethod
-    def get_code_table() -> dict[str, int]:
-        return _LocationData.name_to_id
-
-    @staticmethod
-    def _from_list(world: SplasherWorld, data: list[_LocationData]) -> list[SplasherLocation]:
-        return [SplasherLocation(world, x) for x in data]
+    def name_to_id():
+        return _LocationData.name_to_id()
     
-    # need to add locations to regions instead of returning
     @staticmethod
-    def create_locations(world: SplasherWorld) -> None:
-        locations: list[SplasherLocation] = SplasherLocation._from_list(world, _Clears.get())
-        locations[21].place_locked_item(SplasherItem(SplasherItem.victory, world.player)) # place on last level clear
+    def create_locations(world: SplasherWorld):        
+        for data in _LocationData.data():
+            if data.include(world.options):
+                SplasherLocation(world, data)
 
-        splashers_classes: list[type[_Splasher]] = [
-            _FirstSplasher, _SecondSplasher, _ThirdSplasher, 
-            _FourthSplasher, _FifthSplasher, _SixthSplasher
-        ]
-        for x in splashers_classes:
-            locations += SplasherLocation._from_list(world, x.get())
+    def __init__(self, world: SplasherWorld, data: _LocationData):
+        region = world.get_region(data.region)
+        Location.__init__(self, world.player, data.name, data.id, region)
+        region.locations.append(self)
+        
 
-        if world.options.randomize_powers >= RandomizePowers.option_on:
-            locations += SplasherLocation._from_list(world, _Powers.get())
+class _LocationData:
+    __data: ClassVar[list[_LocationData]|None] =  None
+    __name_to_id: ClassVar[dict[str, int]|None] = None
+    __next_id: ClassVar[int] = SplasherUtils.base_id
 
-        if world.options.randomize_golden_splashers:
-            locations += SplasherLocation._from_list(world, _GoldenSplashers.get())
+    @classmethod
+    def __init(cls):
+        cls.__data = [
+                _LocationData(_LocationType.POWER, SplasherPowerLocation.WATER.fullname(), 0),
+                _LocationData(_LocationType.POWER, SplasherPowerLocation.STICKINK.fullname(), 5),
+                _LocationData(_LocationType.POWER, SplasherPowerLocation.BOUNCINK.fullname(), 13)
+            ]
+        
+        for i in range(22):
+            cls.__data += [_LocationData(_LocationType.SPLASHER, SplashersLocation.fullname(i, j), i) for j in range(6)]
+            cls.__data.append(_LocationData(_LocationType.SPLASHER_GOLD, SplashersLocation.fullname(i, None), i))
 
-        if world.options.include_medals == IncludeMedals.option_platinum:
-            locations += SplasherLocation._from_list(world, _Platinums.get())
-        if world.options.include_medals >= IncludeMedals.option_gold:
-            locations += SplasherLocation._from_list(world, _Golds.get())
-        if world.options.include_medals >= IncludeMedals.option_silver:
-            locations += SplasherLocation._from_list(world, _Silvers.get())
-        if world.options.include_medals >= IncludeMedals.option_silver:
-            locations += SplasherLocation._from_list(world, _Bronzes.get())
+        for name in SplasherLocationOnEachLevel:
+            cls.__data += [_LocationData(name.type(), name.fullname(i), i) for i in range(22)]
+    
+    @classmethod
+    def data(cls) -> list[_LocationData]:
+        if (cls.__data is None):
+            cls.__init()
+                
+        return cls.__data # type: ignore
+    
+    @classmethod
+    def name_to_id(cls) -> dict[str, int]:
+        if (cls.__name_to_id is None):
+            cls.__init()
 
-        for location in  locations:
-            if location.parent_region is not None:
-                location.parent_region.locations.append(location)
+        return cls.__name_to_id # type: ignore
+    
+    __type: _LocationType
+    id: int
+    name: str
+    region: str
+    def __init__(self, type: _LocationType, name: str, level_id: int):
+        self.name = name
+        self.__type = type
+        self.id = _LocationData.__next_id
+        self.region = SplasherLevelName.level(level_id)
 
-class _LocationName(StrEnum):
+        _LocationData.__next_id += 1
+
+        if _LocationData.__name_to_id is None:
+            _LocationData.__name_to_id = {}       
+        _LocationData.__name_to_id[name] = self.id
+
+    def include(self, options: SplasherOptions) -> bool:
+        match(self.__type):
+            case _LocationType.CLEAR | _LocationType.SPLASHER: return True
+            case _LocationType.SPLASHER_GOLD: return options.randomize_golden_splashers.value > 0
+            case _LocationType.POWER : return options.randomize_powers > RandomizePowers.option_off
+            case _LocationType.BRONZE: return options.include_medals > IncludeMedals.option_off
+            case _LocationType.SILVER: return options.include_medals > IncludeMedals.option_bronze
+            case _LocationType.GOLD: return options.include_medals > IncludeMedals.option_silver
+
+class _LocationType(IntEnum):
+    CLEAR = 0
+    SPLASHER = 1
+    SPLASHER_GOLD = 2
+    BRONZE = 3
+    SILVER = 4
+    GOLD = 5
+    POWER = 6
+
+class SplasherPowerLocation(StrEnum):
+    WATER = "Water"
+    STICKINK = "Stickink"
+    BOUNCINK = "Bouncink"
+
+    def fullname(self) -> str:
+        return f"{self.value} Unlock"
+
+class SplasherLocationOnEachLevel(StrEnum):
     CLEAR = "Clear"
-    SPLASHER = SplasherUtils.splasher
     BRONZE = "Bronze Medal"
     SILVER = "Silver Medal"
     GOLD = "Gold Medal"
-    PLATINUM = "Platinum Medal"
-    WATER = "Water Gun Unlock"
-    STICKY = "Sticky Paint Unlock"
-    BOUNCY = "BouncyPaintUnlock"
 
-class _InnerLocationData(NamedTuple):
-    level_id: int
-    required_items: list[SplasherPowerItem]
-    require_splashers: bool = False
+    def type(self) -> _LocationType:
+        match(self):
+            case SplasherLocationOnEachLevel.CLEAR: return _LocationType.CLEAR
+            case SplasherLocationOnEachLevel.BRONZE: return _LocationType.BRONZE
+            case SplasherLocationOnEachLevel.SILVER: return _LocationType.SILVER
+            case SplasherLocationOnEachLevel.GOLD: return _LocationType.GOLD
 
-class _LocationData:
-    name: str
-    region: str
-    code: int
-    required_items: list[SplasherPowerItem]
-    require_splashers: bool
-
-    name_to_id: ClassVar[dict[str, int]] = {}
-    __next: ClassVar[int] = SplasherUtils.base_id
-
-    def __init__(self, name: _LocationName, inner: _InnerLocationData, name_suffix: str|None):
-        region = SplasherLevelName.level(inner.level_id)
-        self.name = f"{region} : {name}{"" if name_suffix is None else f'({name_suffix})'}"
-        self.region = region
-        self.code = _LocationData.__next
-        self.required_items = inner.required_items
-        self.require_splashers = inner.require_splashers
-
-        _LocationData.__next += 1
-        _LocationData.name_to_id[name] = self.code
-
-class _LocationDataContainer(ABC):
-    _data: list[_InnerLocationData]|None = None
-
-    @classmethod
-    def get(cls) -> list[_LocationData]:
-        if (cls._data is None):
-            cls.init()
-
-        return [] if cls._data is None else [_LocationData(cls.name(), x, cls.suffix()) for x in cls._data]
+    def fullname(self, level_id: int):
+        return f"{SplasherLevelName.level(level_id)} : {self.value}"
     
+class SplashersLocation:
     @staticmethod
-    def suffix() -> str|None:
-        return None
-
-    @staticmethod
-    @abstractmethod
-    def name() -> _LocationName:
-        ...
-
-    @classmethod
-    @abstractmethod
-    def init(cls) -> None:
-        ...
-
-class _Splasher(_LocationDataContainer):
-    @staticmethod
-    def name() -> _LocationName:
-        return _LocationName.SPLASHER
-
-class _GoldenSplashers(_Splasher):
-    @staticmethod
-    def suffix() -> str | None:
-        return "Gold"
-
-    @classmethod
-    def init(cls) -> None:
-        cls._data = [
-            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(0, 5)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
-        ] + [
-            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
-        ]
-
-class _FirstSplasher(_Splasher):
-    @staticmethod
-    def suffix() -> str | None:
-        return "First"
-
-    @classmethod
-    def init(cls) -> None:
-        cls._data = [
-            _InnerLocationData(0, [])
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(1, 5)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
-        ] + [
-            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
-        ]
-
-class _SecondSplasher(_Splasher):
-    @staticmethod
-    def suffix() -> str | None:
-        return "Second"
-    
-    @classmethod
-    def init(cls) -> None:
-        cls._data = [
-            _InnerLocationData(0, [])
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(1, 5)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
-        ] + [
-            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
-        ]
-
-class _ThirdSplasher(_Splasher):
-    @staticmethod
-    def suffix() -> str | None:
-        return "Third"
-    
-    @classmethod
-    def init(cls) -> None:
-        cls._data = [
-            _InnerLocationData(0, [])
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(1, 5)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
-        ] + [
-            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
-        ]
-
-class _FourthSplasher(_Splasher):
-    @staticmethod
-    def suffix() -> str | None:
-        return "Fourth"
-    
-    @classmethod
-    def init(cls) -> None:
-        cls._data = [
-            _InnerLocationData(0, [])
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(1, 5)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
-        ] + [
-            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
-        ]
-
-class _FifthSplasher(_Splasher):
-    @staticmethod
-    def suffix() -> str | None:
-        return "Fifth"
-    
-    @classmethod
-    def init(cls) -> None:
-        cls._data = [
-            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(1, 5)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
-        ] + [
-            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
-        ]
-
-class _SixthSplasher(_Splasher):
-    @staticmethod
-    def suffix() -> str | None:
-        return "Sixth"
-    
-    @classmethod
-    def init(cls) -> None:
-        cls._data = [
-            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(1, 5)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
-        ] + [
-            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
-        ]
-
-class _Clears(_LocationDataContainer):
-    @classmethod
-    def init(cls) -> None:
-        cls._data = [
-            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(0, 5)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
-        ] + [
-            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
-        ]
-
-    @staticmethod
-    def name() -> _LocationName:
-        return _LocationName.CLEAR
-
-class _Platinums(_LocationDataContainer):
-    @classmethod
-    def init(cls) -> None:
-        cls._data = [
-            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(0, 5)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
-        ] + [
-            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
-        ]
-
-class _Golds(_LocationDataContainer):
-    @classmethod
-    def init(cls) -> None:
-        cls._data = [
-            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(0, 5)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
-        ] + [
-            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
-        ]
-
-class _Silvers(_LocationDataContainer):
-    @classmethod
-    def init(cls) -> None:
-        cls._data = [
-            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(0, 5)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
-        ] + [
-            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
-        ]
-
-class _Bronzes(_LocationDataContainer):
-    @classmethod
-    def init(cls) -> None:
-        cls._data = [
-            _InnerLocationData(i, [SplasherPowerItem.WATER]) for i in range(0, 5)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY]) for i in range(5, 14)
-        ] + [
-            _InnerLocationData(i, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY]) for i in range(14, 21)
-        ] + [
-            _InnerLocationData(21, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY], True)
-        ]
-
-class _Powers(_LocationDataContainer):
-    @classmethod
-    def init(cls) -> None:
-        cls.__data = [
-            _InnerLocationData(0, []), _InnerLocationData(5, [SplasherPowerItem.WATER]), _InnerLocationData(13, [SplasherPowerItem.WATER, SplasherPowerItem.STICKY])
-        ]
+    def fullname(level_id: int, splasher_id: int|None):
+        return f"{SplasherLevelName.level(level_id)} : Splasher ({"Gold" if splasher_id is None else splasher_id+1})"

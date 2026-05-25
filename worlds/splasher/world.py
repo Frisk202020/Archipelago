@@ -3,6 +3,7 @@ from typing import Any
 from Options import Toggle
 from rule_builder.rules import Has
 from worlds.AutoWorld import World
+from worlds.splasher.rules import SplasherRules
 from worlds.splasher.utils import SplasherUtils
 from worlds.splasher.web import SplasherWebWorld
 from . import regions
@@ -20,16 +21,17 @@ class SplasherWorld(World):
     origin_region_name = SplasherUtils.origin
 
     options_dataclass = SplasherOptions
-    options: SplasherOptions
+    options: SplasherOptions # type: ignore
 
     item_name_to_id = {name:SplasherItem.get_code(name) for name in SplasherItem.keys()}
-    location_name_to_id = SplasherLocation.get_code_table()
+    location_name_to_id = SplasherLocation.name_to_id()
     
 
     def create_regions(self) -> None:
         regions.create_all_regions(self)
         regions.connect_regions(self)
         SplasherLocation.create_locations(self)
+        SplasherRules.set_rules(self)
 
     def create_item(self, name: str) -> SplasherItem:
         return SplasherItem(name, self.player)

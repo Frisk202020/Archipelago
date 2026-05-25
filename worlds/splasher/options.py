@@ -44,7 +44,7 @@ class RandomizePowers(Choice):
     option_off = 0
     option_on = 1
     option_progressive = 2
-    default = option_progressive
+    default = option_on
 
 class RandomizeGoldenSplashers(DefaultOnToggle):
     """
@@ -76,7 +76,6 @@ class IncludeMedals(Choice):
     option_bronze = 1
     option_silver = 2
     option_gold = 3
-    option_platinum = 4
     default = option_off
 
 class SplashersGoal(Range):

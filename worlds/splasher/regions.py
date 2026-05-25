@@ -28,10 +28,6 @@ class SplasherLevelName:
     @staticmethod
     def for_all[T](f: Callable[[str], T]) -> list[T]:
         return [f(x) for x in SplasherLevelName.__level_name]
-    
-    @staticmethod
-    def for_all_indexed[T](f: Callable[[str, int], T]) -> list[T]:
-        return [f(SplasherLevelName.__level_name[i], i) for i in range(len(SplasherLevelName.__level_name))]
 
 def create_all_regions(world: SplasherWorld):
     world.multiworld.regions += [Region(SplasherUtils.origin, world.player, world.multiworld)]
