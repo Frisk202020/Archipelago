@@ -35,7 +35,6 @@ class SplasherPowerItem(StrEnum):
     WATER = "Water Unlock"
     STICKY = "Sticky Paint Unlock"
     BOUNCY = "Bouncy Paint Unlock"
-    CAPACITY = "Progressive Sauce Capacity"
 
     @classmethod
     def literals(cls) -> list[str]:
@@ -50,9 +49,7 @@ class _ItemGroup:
 
     def __init__(self, names: list[str], classification: ItemClassification=ItemClassification.progression):
         self.names = names
-        self.classification = classification
-        self.x = 1
-        
+        self.classification = classification        
 
     @staticmethod
     def groups() -> Group:

@@ -41,6 +41,7 @@ class SplasherRules:
 
     @staticmethod
     def __add_power_rules():
+        _Rule.set(SplashersLocation.fullname(0, 4), Has(SplasherPowerItem.WATER))
         _Rule.set(SplashersLocation.fullname(0, 5), Has(SplasherPowerItem.WATER))
         _Rule.set(SplashersLocation.fullname(0, None), Has(SplasherPowerItem.WATER))
         _Rule.set(SplasherLocationOnEachLevel.CLEAR.fullname(0), Has(SplasherPowerItem.WATER))
@@ -73,6 +74,7 @@ class SplasherRules:
         _Rule.set(SplasherLocationOnEachLevel.GOLD.fullname(2), Has(SplasherPowerItem.WATER))
 
         _Rule.set(SplashersLocation.fullname(3, 0), Has(SplasherPowerItem.WATER))
+        _Rule.set(SplashersLocation.fullname(3, 1), Has(SplasherPowerItem.WATER) | Has(SplasherPowerItem.STICKY) | Has(SplasherPowerItem.BOUNCY))
         _Rule.set(SplashersLocation.fullname(3, 2), Has(SplasherPowerItem.WATER))
         _Rule.set(SplashersLocation.fullname(3, 3), Has(SplasherPowerItem.WATER))
         _Rule.set(SplashersLocation.fullname(3, 4), Has(SplasherPowerItem.WATER))
@@ -95,6 +97,7 @@ class SplasherRules:
         _Rule.set(SplasherLocationOnEachLevel.SILVER.fullname(4), Has(SplasherPowerItem.WATER))
         _Rule.set(SplasherLocationOnEachLevel.GOLD.fullname(4), Has(SplasherPowerItem.WATER))
 
+        _Rule.set(SplashersLocation.fullname(5, 0), Has(SplasherPowerItem.WATER) | Has(SplasherPowerItem.STICKY) | Has(SplasherPowerItem.BOUNCY))
         _Rule.set(SplashersLocation.fullname(5, 1), Has(SplasherPowerItem.WATER))
         _Rule.set(SplashersLocation.fullname(5, 2), Has(SplasherPowerItem.WATER))
         _Rule.set(SplashersLocation.fullname(5, 3), Has(SplasherPowerItem.WATER))
@@ -108,17 +111,18 @@ class SplasherRules:
         _Rule.set(SplasherLocationOnEachLevel.GOLD.fullname(5), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY))
 
         _Rule.set(SplashersLocation.fullname(6, 0), Has(SplasherPowerItem.BOUNCY) | Has(SplasherPowerItem.STICKY))
-        _Rule.set(SplashersLocation.fullname(6, 1), Has(SplasherPowerItem.BOUNCY) | Has(SplasherPowerItem.STICKY))
-        _Rule.set(SplashersLocation.fullname(6, 2), Has(SplasherPowerItem.STICKY))
-        _Rule.set(SplashersLocation.fullname(5, 3), Has(SplasherPowerItem.STICKY))
-        _Rule.set(SplashersLocation.fullname(6, 4), Has(SplasherPowerItem.STICKY))
-        _Rule.set(SplashersLocation.fullname(6, 5), Has(SplasherPowerItem.STICKY))
-        _Rule.set(SplashersLocation.fullname(6, None), Has(SplasherPowerItem.STICKY))
-        _Rule.set(SplasherLocationOnEachLevel.CLEAR.fullname(6), Has(SplasherPowerItem.STICKY))
+        _Rule.set(SplashersLocation.fullname(6, 1), Has(SplasherPowerItem.BOUNCY) | HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY))
+        _Rule.set(SplashersLocation.fullname(6, 2), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY))
+        _Rule.set(SplashersLocation.fullname(6, 3), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY))
+        _Rule.set(SplashersLocation.fullname(6, 4), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY))
+        _Rule.set(SplashersLocation.fullname(6, 5), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY))
+        _Rule.set(SplashersLocation.fullname(6, None), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY))
+        _Rule.set(SplasherLocationOnEachLevel.CLEAR.fullname(6), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY))
         _Rule.set(SplasherLocationOnEachLevel.BRONZE.fullname(6), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY))
         _Rule.set(SplasherLocationOnEachLevel.SILVER.fullname(6), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY))
         _Rule.set(SplasherLocationOnEachLevel.GOLD.fullname(6), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY))
 
+        _Rule.set(SplashersLocation.fullname(7, 0), Has(SplasherPowerItem.BOUNCY) | Has(SplasherPowerItem.STICKY))
         _Rule.set(SplashersLocation.fullname(7, 1), Has(SplasherPowerItem.WATER) & (Has(SplasherPowerItem.BOUNCY) | Has(SplasherPowerItem.STICKY)))
         _Rule.set(SplashersLocation.fullname(7, 2), Has(SplasherPowerItem.WATER) & (Has(SplasherPowerItem.BOUNCY) | Has(SplasherPowerItem.STICKY)))
         _Rule.set(SplashersLocation.fullname(7, 3), Has(SplasherPowerItem.WATER) & (Has(SplasherPowerItem.BOUNCY) | Has(SplasherPowerItem.STICKY)))

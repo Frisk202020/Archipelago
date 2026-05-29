@@ -38,10 +38,10 @@ class _LocationData:
     @classmethod
     def __init(cls):
         cls.__data = [
-                _LocationData(_LocationType.POWER, SplasherPowerLocation.WATER.fullname(), 0),
-                _LocationData(_LocationType.POWER, SplasherPowerLocation.STICKINK.fullname(), 5),
-                _LocationData(_LocationType.POWER, SplasherPowerLocation.BOUNCINK.fullname(), 13)
-            ]
+            _LocationData(_LocationType.POWER, SplasherPowerLocation.WATER.fullname(), 0),
+            _LocationData(_LocationType.POWER, SplasherPowerLocation.STICKINK.fullname(), 5),
+            _LocationData(_LocationType.POWER, SplasherPowerLocation.BOUNCINK.fullname(), 13)
+        ]
         
         for i in range(22):
             cls.__data += [_LocationData(_LocationType.SPLASHER, SplashersLocation.fullname(i, j), i) for j in range(6)]
