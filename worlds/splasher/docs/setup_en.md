@@ -5,7 +5,7 @@
 - A legally obtained copy of Splasher
 - `BepInEx` installed in Splasher. Installation is explained bellow
 - Archipelago Client (0.6.7 or later)
-- [Splasher Archipelago]()
+- [Splasher Archipelago](https://github.com/Frisk202020/SplasherArchipelago/releases/)
 
 *The game is currently only tested on Windows (though you should not have any issue since `BepInEx` is cross-platform). Furthermore, as the game was only released on Steam (and consoles), we'll assume the game is installed in default Steam folders*.
 
@@ -13,13 +13,13 @@
 
 ### Setting up BepInEx
 
-- First, download `BepInEx` [latest release (v.5.4.23)](https://github.com/BepInEx/BepInEx/releases/tag/v5.4.23.5). It is a mod loader that will allow to load *Archipelago* in the game.
+- First, download `BepInEx` [latest release (v.5.4.23)](https://github.com/BepInEx/BepInEx/releases/tag/v5.4.23.5) (winx64 for windows). It is a mod loader that will allow to load *Archipelago* in the game.
 - Extract the obtained archive into Splasher's root folder (which should be located at `C:\Program Files (x86)\Steam\steamapps\common\Splasher`)
 - Launch the game a first time : it will initialize BepInEx, mainly, it should initialize a `plugins` folder inside \BepInEx.
 
 ### Setting up the mod
 
-- Download the latest release of the [Splasher Archipelago](). Extract and drag all its content from /plugins into BepInEx's /plugins folder. 
+- Download the latest release of the [Splasher Archipelago](https://github.com/Frisk202020/SplasherArchipelago/releases/). Extract and drag all its content from /plugins into BepInEx's /plugins folder. 
 - Drag the `connection.md` file inside `Splasher Archipelago` to Splasher's root folder. Then edit the file with your own connection info.
 - Launch the game and ring the assistant's bell : it should initiate a connection to the server, and if successful, initiate the mod !
 *You can ensure it worked if you now can't fire water/paint now (except if unlocked in Archipelago)*
@@ -32,7 +32,7 @@ When the mod is enabled, saves are disabled to prevent corruption of your vanill
 
 ## Hosting
 
-For hosting this Archipelago, you need to install the `apworld` provided by [Splasher Archipelago]() (simply double click on it, or install it with the launcher).
+For hosting this Archipelago, you need to install the [apworld](https://github.com/Frisk202020/Archipelago/releases/) (simply double click on it, or install it with the launcher).
 
 ## Feedback
 
