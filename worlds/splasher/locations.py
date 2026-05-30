@@ -4,7 +4,7 @@ from enum import IntEnum, StrEnum
 from typing import TYPE_CHECKING, ClassVar
 
 from BaseClasses import Location
-from worlds.splasher.options import IncludeMedals, RandomizePowers, SplasherOptions
+from worlds.splasher.options import IncludeMedals, SplasherOptions
 from worlds.splasher.regions import SplasherLevelName
 from worlds.splasher.utils import SplasherUtils
 
@@ -82,12 +82,10 @@ class _LocationData:
 
     def include(self, options: SplasherOptions) -> bool:
         match(self.__type):
-            case _LocationType.CLEAR | _LocationType.SPLASHER: return True
-            case _LocationType.SPLASHER_GOLD: return options.randomize_golden_splashers.value > 0
-            case _LocationType.POWER : return options.randomize_powers > RandomizePowers.option_off
             case _LocationType.BRONZE: return options.include_medals > IncludeMedals.option_off
             case _LocationType.SILVER: return options.include_medals > IncludeMedals.option_bronze
             case _LocationType.GOLD: return options.include_medals > IncludeMedals.option_silver
+            case _:  return True
 
 class _LocationType(IntEnum):
     CLEAR = 0

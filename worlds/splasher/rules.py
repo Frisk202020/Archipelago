@@ -16,14 +16,40 @@ class SplasherRules:
     def set_rules(cls, world: SplasherWorld):
         cls.__add_splashers_rules(world)
 
+        print(world.get_locations())
+
         world.get_location(
             SplasherLocationOnEachLevel.CLEAR.fullname(21)
         ).place_locked_item(
             SplasherItem(SplasherItem.victory, world.player)
         )
 
-        if (world.options.randomize_powers > RandomizePowers.option_off):
+        if (world.options.randomize_powers < RandomizePowers.option_on):
+            world.get_location(
+                SplasherPowerLocation.WATER.fullname()
+            ).place_locked_item(
+                SplasherItem(SplasherPowerItem.WATER, world.player)
+            )
+
+            world.get_location(
+                SplasherPowerLocation.STICKINK.fullname()
+            ).place_locked_item(
+                SplasherItem(SplasherPowerItem.STICKY, world.player)
+            )
+
+            world.get_location(
+                SplasherPowerLocation.BOUNCINK.fullname()
+            ).place_locked_item(
+                SplasherItem(SplasherPowerItem.BOUNCY, world.player)
+            )
+        else:
             cls.__add_power_rules()
+
+        if not (world.options.randomize_golden_splashers):
+            for i in range(22):
+                world.get_location(
+                    SplashersLocation.fullname(i, None)
+                ).place_locked_item(SplasherItem(SplasherUtils.splasher, world.player))
 
         _Rule.apply(world)
 
