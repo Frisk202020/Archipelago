@@ -13,7 +13,7 @@ from .options import SplasherOptions,RandomizePowers
 
 class SplasherWorld(World):
     """
-    Splasher is a 2D action-plateformer ...
+    Splasher is a 2D action-platformer ...
     """
     game = SplasherUtils.splasher
     web = SplasherWebWorld()
@@ -40,12 +40,10 @@ class SplasherWorld(World):
         total_splashers = SplasherUtils.regular_splashers + SplasherUtils.golden_splashers if self.options.randomize_golden_splashers else SplasherUtils.regular_splashers
         itempool: list[SplasherItem] = [SplasherItem(SplasherUtils.splasher, self.player) for _ in range(total_splashers)]
 
-        for name,enabled in {
-            SplasherItemGroupName.POWERS: self.options.randomize_powers >= RandomizePowers.option_on,
-        }.items():  
-            if enabled:
-                itempool += name.create_items(self.player)
-
+        if self.options.randomize_powers == RandomizePowers.option_on:
+            itempool += SplasherItemGroupName.POWERS.create_items(self.player)
+        elif self.options.randomize_powers == RandomizePowers.option_progressive:
+            itempool += [SplasherItem(SplasherItem.progressive_power, self.player) for _ in range(3)]
 
         itempool += [
             SplasherItem(

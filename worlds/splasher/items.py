@@ -89,6 +89,7 @@ class _ItemData:
         if (len(_ItemData.__data_table) == 0):
             _ItemData.__data_table[SplasherItem.victory] = _ItemData()
             _ItemData.__data_table[SplasherUtils.splasher] = _ItemData()
+            _ItemData.__data_table[SplasherItem.progressive_power] = _ItemData()
 
             for group in _ItemGroup.groups().values():
                 for name in group.names:
@@ -99,6 +100,7 @@ class _ItemData:
 class SplasherItem(Item):
     game = SplasherUtils.splasher
     victory: ClassVar[str] = "Freedom"
+    progressive_power: ClassVar[str] = "Progressive Power Unlock"
 
     def __init__(self, name: str, player: int):
         data = _ItemData.data_table()[name]
