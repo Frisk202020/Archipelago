@@ -18,7 +18,7 @@
 ## Mise en place du patch
 
 - Téléchargez la dernière version de [Splasher Archipelago](https://github.com/Frisk202020/SplasherArchipelago/releases/). Extrayez le contenu, et déplacez tout le contenu à l'intérieur de `plugins` dans le dossier `plugins` de `BepInEx`
-- Déplacez `connection.md` à la racine de Splasher, puis modifier ce fichier pour inscrire vos propres informations de connexion
+- Déplacez `connection.yaml` et `Proxy.exe` à la racine de Splasher, puis modifiez `connexion.yaml` pour inscrire vos propres informations de connexion. En ce qui concerne le proxy, il est utile lorsque vous jouez sur un serveur distant, plus de détails [ci-dessous]().
 - Lancez le jeu et sonnez la clochette de la secrétaire : cela doit initier une connexion au serveur et, si cela réussi, lancer le patch !
 *Vous pouvez vous assurer de la bonne mise en place si vous ne pouvez désormais plus tirer d'eau / de peinture (si vous n'avez pas reçu les items d'Archipelago).
 
@@ -28,7 +28,15 @@ Lorsque le patch est activé, les sauvegardes sont désactivés afin d'éviter d
 - vous le saurez au moment de votre prochain check : le jeu sera figé le temps de tenter quelques reconnexions automatiques (une dizaine de secondes)
 - si le jeu ne parvient pas à se reconnecter, vous pouvez continuer votre partie **tant que vous ne fermez pas le jeu** (sinon, la progression depuis la déconnexion sera perdue). Vous pourrez vous reconnecter manuellement en sonnant à nouveau la clochette lors de votre prochaine visite à l’accueil.
 
-## Hébergement
+## Lancer une partie
+
+### Jouer sur archipelago.gg
+
+Pour jouer sur *archipelago.gg* (ou la plupart des serveurs sur internet), vous devrez activer l'option `proxy` (changer la valeur *false* en *true*) dans votre `connexion.yaml`. Cela active le client à utiliser (automatiquement) `Proxy.exe` (fournit dans un client v0.0.3 ou plus) lors de la connexion à Archipelago. Ne pas activer cette passerelle empêche le jeu de lancer une connexion sécurisée vers Archipelago, ce qui résultera en un `connexion timeout`. Des explications plus avancées sur le but de ce proxy peuvent être lues [ici](https://github.com/Frisk202020/SplasherArchipelago/blob/tls-compatibility/Proxy/README.md).
+
+> L'implémentation du proxy n'est pour le moment stable que sur Windows. Les futures versions apporteront de la compatibilité multi-plateforme.
+
+### Hébergement local
 
 Pour héberger cet Archipelago, installez le [apworld](https://github.com/Frisk202020/Archipelago/releases/) (double-cliquez simplement, ou installez via le client Archipelago).
 

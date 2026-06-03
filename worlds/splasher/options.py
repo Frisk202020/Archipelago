@@ -9,6 +9,13 @@ TODO (future versions) : implement level randomization options:
 -> Open World (default) : ideal for non-blocking multiplayer
 -> Open : lock levels behind keys, for longer multiplayer sessions
 -> Closed : Each level clear unlocks the next, but order is randomized : for solo sessions
+
+TODO for deathlink :
+- disabled
+- normal : 5 deaths
+- hard : 3 deaths
+- deathless : 1 death
+- legend : killing splashers triggers it
 """
 
 class RandomizeCheckpoints(Choice):
