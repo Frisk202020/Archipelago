@@ -61,6 +61,23 @@ class TrapChance(Range):
     range_end = 100
     default = 0
 
+class DeathLink(Choice):
+    """
+    Determine which death link level to apply
+
+    Off - Don't enable death link
+    On - Enable death link, which is triggered on your side every 5 deaths
+    Brave - Trigger on 3 deaths
+    Insane - Trigger on every death
+    Legend - Also trigger the death link when you accidentally kill a splasher
+    """
+    display_name = "DeathLink"
+    option_off = 0
+    option_on = 1
+    option_brave = 2
+    option_insane = 3
+    option_legend = 4
+
 class IncludeMedals(Choice):
     """
     Determine if speedrun medals should reward a check. If enabled, each tier rewards a check.
@@ -96,6 +113,7 @@ class SplasherOptions(PerGameCommonOptions):
     splashers_goal: SplashersGoal
     include_medals: IncludeMedals
     trap_chance: TrapChance
+    death_link: DeathLink
 
 # Can't attach option_groups in SplasherOptions as it crashes Generate Template Options
 class SplasherOptionExports:
@@ -110,7 +128,7 @@ class SplasherOptionExports:
             "Optional items",
             [IncludeEssenceItem]
         ), OptionGroup(
-            "Traps",
-            [TrapChance]
+            "Making your life miserable",
+            [TrapChance, DeathLink]
         )
     ]
