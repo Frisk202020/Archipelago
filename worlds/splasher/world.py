@@ -7,7 +7,7 @@ from worlds.splasher.rules import SplasherRules
 from worlds.splasher.utils import SplasherUtils
 from worlds.splasher.web import SplasherWebWorld
 from . import regions
-from .items import SplasherItem, SplasherItemGroupName
+from .items import SplasherItem, SplasherItemGroupName, SplasherPowerItem
 from .locations import SplasherLocation
 from .options import SplasherOptions,RandomizePowers
 
@@ -42,6 +42,8 @@ class SplasherWorld(World):
 
         if self.options.randomize_powers == RandomizePowers.option_on:
             itempool += SplasherItemGroupName.POWERS.create_items(self.player)
+        elif self.options.randomize_powers == RandomizePowers.option_on_except_water:
+            itempool += SplasherPowerItem.create_items_except_water(self.player)
         elif self.options.randomize_powers == RandomizePowers.option_progressive:
             itempool += [SplasherItem(SplasherItem.progressive_power, self.player) for _ in range(3)]
 

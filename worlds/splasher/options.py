@@ -38,12 +38,14 @@ class RandomizePowers(Choice):
 
     Off - Powers aren't randomized : you need to reach the power unlock in the intended level
     On - Power unlocks are randomized into the pool
-    Progressive - Powers are randomized and fire delay is increased, needing pool items to reach its original balance
+    On Except Water - Randomize Stickink and Bouncink, but unlock Water as normal. This prevents the early game to be too restrictive.
+    Progressive - Powers are randomized as progressive items : water, then stickink, then bouncink
     """
     display_name = "Randomize Powers"
     option_off = 0
     option_on = 1
-    option_progressive = 2
+    option_on_except_water = 2
+    option_progressive = 3
     default = option_on
 
 class RandomizeGoldenSplashers(DefaultOnToggle):
@@ -76,7 +78,8 @@ class DeathLink(Choice):
     option_on = 1
     option_brave = 2
     option_insane = 3
-    option_legend = 4
+    option_selfish_legend = 4
+    option_legend = 5
 
 class IncludeMedals(Choice):
     """

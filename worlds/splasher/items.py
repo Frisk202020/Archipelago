@@ -37,6 +37,10 @@ class SplasherPowerItem(StrEnum):
     BOUNCY = "Bouncy Paint Unlock"
 
     @classmethod
+    def create_items_except_water(cls, player: int):
+        return [SplasherItem(x, player) for x in [cls.STICKY, cls.BOUNCY]]
+
+    @classmethod
     def literals(cls) -> list[str]:
         return [item.value for item in cls]
 

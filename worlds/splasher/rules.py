@@ -22,14 +22,22 @@ class SplasherRules:
             SplasherItem(SplasherItem.victory, world.player)
         )
 
-        match(world.options.randomize_powers):
-            case RandomizePowers.option_off:
+        if world.options.randomize_powers == RandomizePowers.option_progressive:
+            cls.__add_progressive_power_rules()
+        else:
+            cls.__add_power_rules()
+
+            if (
+                world.options.randomize_powers == RandomizePowers.option_off or
+                world.options.randomize_powers == RandomizePowers.option_on_except_water
+            ):
                 world.get_location(
                     SplasherPowerLocation.WATER.fullname()
                 ).place_locked_item(
                     SplasherItem(SplasherPowerItem.WATER, world.player)
                 )
 
+            if (world.options.randomize_powers == RandomizePowers.option_off):
                 world.get_location(
                     SplasherPowerLocation.STICKINK.fullname()
                 ).place_locked_item(
@@ -41,11 +49,6 @@ class SplasherRules:
                 ).place_locked_item(
                     SplasherItem(SplasherPowerItem.BOUNCY, world.player)
                 )
-            case RandomizePowers.option_on:
-                cls.__add_power_rules()
-            case RandomizePowers.option_progressive:
-                cls.__add_progressive_power_rules()
-            case _: pass # never reached
 
         if not (world.options.randomize_golden_splashers):
             for i in range(22):
@@ -231,7 +234,7 @@ class SplasherRules:
         _Rule.set(SplashersLocation.fullname(13, 5), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY))
         _Rule.set(SplashersLocation.fullname(13, None), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY))
         _Rule.set(SplasherLocationOnEachLevel.CLEAR.fullname(13), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY))
-        _Rule.set(SplasherPowerLocation.BOUNCINK.fullname(), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY))
+        _Rule.set(SplasherPowerLocation.BOUNCINK.fullname(), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY))
         _Rule.set(SplasherLocationOnEachLevel.BRONZE.fullname(13), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY))
         _Rule.set(SplasherLocationOnEachLevel.SILVER.fullname(13), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY))
         _Rule.set(SplasherLocationOnEachLevel.GOLD.fullname(13), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY))
