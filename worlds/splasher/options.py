@@ -1,7 +1,7 @@
 from typing import ClassVar
 from dataclasses import dataclass
 
-from Options import DefaultOnToggle, OptionGroup, Choice, Range, PerGameCommonOptions
+from Options import DefaultOnToggle, OptionGroup, Choice, Range, PerGameCommonOptions, Toggle
 from worlds.splasher.utils import SplasherUtils
 
 """
@@ -76,10 +76,8 @@ class DeathLink(Choice):
     display_name = "DeathLink"
     option_off = 0
     option_on = 1
-    option_brave = 2
-    option_insane = 3
-    option_selfish_legend = 4
-    option_legend = 5
+    option_insane = 2
+    option_legend = 3
 
 class IncludeMedals(Choice):
     """
@@ -107,6 +105,13 @@ class SplashersGoal(Range):
     range_end = SplasherUtils.regular_splashers + SplasherUtils.golden_splashers 
     default = 80
 
+class HeroMode(Toggle):
+    """
+    Enable Hero Mode, in which killing a Splasher triggers a death for the player as well.
+    Notice this counts towards Death Link if enabled
+    """
+    display_name = "Hero Mode"
+
 @dataclass
 class SplasherOptions(PerGameCommonOptions):
     randomize_checkpoints: RandomizeCheckpoints
@@ -117,6 +122,7 @@ class SplasherOptions(PerGameCommonOptions):
     include_medals: IncludeMedals
     trap_chance: TrapChance
     death_link: DeathLink
+    hero_mode: HeroMode
 
 # Can't attach option_groups in SplasherOptions as it crashes Generate Template Options
 class SplasherOptionExports:
@@ -132,6 +138,6 @@ class SplasherOptionExports:
             [IncludeEssenceItem]
         ), OptionGroup(
             "Making your life miserable",
-            [TrapChance, DeathLink]
+            [HeroMode, TrapChance, DeathLink]
         )
     ]
