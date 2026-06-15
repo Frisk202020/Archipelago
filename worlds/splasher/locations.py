@@ -94,7 +94,8 @@ class _LocationType(IntEnum):
     BRONZE = 3
     SILVER = 4
     GOLD = 5
-    POWER = 6
+    PLATINUM = 6
+    POWER = 7
 
 class SplasherPowerLocation(StrEnum):
     WATER = "Water"
@@ -109,6 +110,7 @@ class SplasherLocationOnEachLevel(StrEnum):
     BRONZE = "Bronze Medal"
     SILVER = "Silver Medal"
     GOLD = "Gold Medal"
+    PLATINUM = "Platinum Medal"
 
     def type(self) -> _LocationType:
         match(self):
@@ -116,6 +118,7 @@ class SplasherLocationOnEachLevel(StrEnum):
             case SplasherLocationOnEachLevel.BRONZE: return _LocationType.BRONZE
             case SplasherLocationOnEachLevel.SILVER: return _LocationType.SILVER
             case SplasherLocationOnEachLevel.GOLD: return _LocationType.GOLD
+            case SplasherLocationOnEachLevel.PLATINUM: return _LocationType.PLATINUM
 
     def fullname(self, level_id: int):
         return f"{SplasherLevelName.level(level_id)} : {self.value}"

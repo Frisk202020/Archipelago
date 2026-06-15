@@ -63,7 +63,10 @@ class SplasherWorld(World):
 
     def fill_slot_data(self) -> dict[str, Any]:
         option_names = [key for key in SplasherOptions.__annotations__.keys()]
-        return self.options.as_dict(*option_names)       
+        data=  self.options.as_dict(*option_names)  
+        data["seed"] = str(self.multiworld.seed)
+
+        return data     
 
     def set_rules(self):
         self.set_completion_rule(Has(SplasherItem.victory)) 
