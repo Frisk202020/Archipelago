@@ -129,7 +129,7 @@ class EssenceSanity(Choice):
 class SplasherOptions(PerGameCommonOptions):
     # randomize_checkpoints: RandomizeCheckpoints
     include_essence_items: IncludeEssenceItem
-    randomize_powers: RandomizePowers
+    # randomize_powers: RandomizePowers
     randomize_golden_splashers: RandomizeGoldenSplashers
     splashers_goal: SplashersGoal
     include_medals: IncludeMedals
