@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, ClassVar
+from typing import TYPE_CHECKING, ClassVar
 from BaseClasses import Region
+from rule_builder.rules import Has
+from worlds.splasher.options import IncludeKeys
 from worlds.splasher.utils import SplasherUtils 
 
 if TYPE_CHECKING:
@@ -19,6 +21,8 @@ class SplasherLevelName:
         "Good Luck Splasher"
     ]
 
+    level_count: ClassVar[int] = 22
+
     @staticmethod
     def level(i: int):
         if (i < 0 or i > 21):
@@ -26,13 +30,36 @@ class SplasherLevelName:
         return SplasherLevelName.__level_name[i]
     
     @staticmethod
-    def for_all[T](f: Callable[[str], T]) -> list[T]:
-        return [f(x) for x in SplasherLevelName.__level_name]
+    def entrance_key(i: int) -> str:
+        return f"{SplasherLevelName.level(i)} : Entrance Key"
+    
+    @classmethod
+    def all_entrance_keys(cls):
+        return [cls.entrance_key(i) for i in range(1, cls.level_count)]
+    
+    @classmethod
+    def all_regions(cls, world: SplasherWorld):
+        return [Region(x, world.player, world.multiworld) for x in cls.__level_name]
 
 def create_all_regions(world: SplasherWorld):
     world.multiworld.regions += [Region(SplasherUtils.origin, world.player, world.multiworld)]
-    world.multiworld.regions += SplasherLevelName.for_all(lambda x: Region(x, world.player, world.multiworld))
+    world.multiworld.regions += SplasherLevelName.all_regions(world)
+
+def __define_rule(world: SplasherWorld, level: int):
+    if level == 0:
+        return None
+
+    match(world.options.include_keys):
+        case IncludeKeys.option_zone:
+            return None
+        case IncludeKeys.option_level:
+            return Has(SplasherLevelName.entrance_key(level))
+        case _:
+            return None
 
 def connect_regions(world: SplasherWorld):
     hub = world.get_region(SplasherUtils.origin)
-    SplasherLevelName.for_all(lambda x: hub.connect(world.get_region(x), f"{x} : Entrance"))
+    for i in range(SplasherLevelName.level_count):
+        level = SplasherLevelName.level(i)
+        print(__define_rule(world, i))
+        hub.connect(world.get_region(level), f"{level} : Entrance", __define_rule(world, i))

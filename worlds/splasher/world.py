@@ -6,10 +6,12 @@ from worlds.AutoWorld import World
 from worlds.splasher.rules import SplasherRules
 from worlds.splasher.utils import SplasherUtils
 from worlds.splasher.web import SplasherWebWorld
+from worlds.splasher.regions import SplasherLevelName
+
 from . import regions
 from .items import SplasherItem, SplasherItemGroupName, SplasherPowerItem
 from .locations import SplasherLocation
-from .options import SplasherOptions,RandomizePowers
+from .options import IncludeKeys, SplasherOptions,RandomizePowers
 
 class SplasherWorld(World):
     """
@@ -46,6 +48,12 @@ class SplasherWorld(World):
             itempool += SplasherPowerItem.create_items_except_water(self.player)
         elif self.options.randomize_powers == RandomizePowers.option_progressive:
             itempool += [SplasherItem(SplasherItem.progressive_power, self.player) for _ in range(3)]
+
+        match(self.options.include_keys):
+            case IncludeKeys.option_level:
+                itempool += [SplasherItem(x, self.player) for x in SplasherLevelName.all_entrance_keys()]
+            case _:
+                pass
 
         itempool += [
             SplasherItem(

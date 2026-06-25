@@ -30,7 +30,7 @@ class SplasherItemGroupName(StrEnum):
         ][rng.randint(0, 1)] if include_essence else SplasherItemGroupName.FILLERS
 
         return group.get_random(rng) 
-    
+        
 class SplasherPowerItem(StrEnum):
     WATER = "Water Unlock"
     STICKY = "Sticky Paint Unlock"
@@ -67,7 +67,9 @@ class _ItemGroup:
                     "Body Aches"
                 ], ItemClassification.trap), SplasherItemGroupName.ESSENCE: _ItemGroup(
                     [f"Essence ({i})" for i in [1, 10, 25, 50]], ItemClassification.filler
-                ), SplasherItemGroupName.KEYS: _ItemGroup(SplasherLevelName.for_all(lambda x: f"{x} : Entrance Key"))
+                ), SplasherItemGroupName.KEYS: _ItemGroup(
+                    SplasherLevelName.all_entrance_keys()
+                )
             }
 
         return _ItemGroup.__groups

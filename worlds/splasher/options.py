@@ -4,6 +4,35 @@ from dataclasses import dataclass
 from Options import DefaultOnToggle, OptionGroup, Choice, Range, PerGameCommonOptions, Toggle
 from worlds.splasher.utils import SplasherUtils
 
+# Zones 
+# Main : 2, 3, 7, 15
+# Water : 5, 6, 9, 13
+# Tech : 8, 12, 18, 20
+# Park : 4, 10, 11, 17
+# Danger : 14, 16, 19, 21
+class IncludeKeys(Choice):
+    """
+    Determine if levels should be locked behind keys
+    If enabled, the first level will still be unlocked
+
+    Off - Do not include keys : every level is unlocked from start
+    Zone - Include thematic keys : each key unlocks from 3 to 5 levels
+    Level - Include a key for each level : each key unlocks one level
+    """
+    display_name = "Include Keys"
+    option_off = 0
+    option_zone = 1
+    option_level = 2
+
+class IncludeSpeedrunKeys(Toggle):
+    """
+    Determine if time attack should have its own keys. This is only relevant if `Include Keys` is enabled.
+
+    Off - A key unlocks a level in both modes
+    On - Include keys specific to Time Attack. Key pattern will match the one of `Include Keys` (Off, Zone or Level)
+    """
+    display_name = "Include Speedrun Keys"
+
 # Will be implemented in future updates
 class RandomizeCheckpoints(Choice):
     """
@@ -136,6 +165,7 @@ class SplasherOptions(PerGameCommonOptions):
     trap_chance: TrapChance
     death_link: DeathLink
     hero_mode: HeroMode
+    include_keys: IncludeKeys
     # essence_sanity: EssenceSanity
 
 # Can't attach option_groups in SplasherOptions as it crashes Generate Template Options
@@ -143,7 +173,7 @@ class SplasherOptionExports:
     option_groups: ClassVar[list[OptionGroup]] = [
         OptionGroup(
             "Randomizer options",
-            [RandomizePowers, RandomizeGoldenSplashers]
+            [RandomizePowers, RandomizeGoldenSplashers, IncludeKeys]
         ), OptionGroup(
             "Goal",
             [SplashersGoal]

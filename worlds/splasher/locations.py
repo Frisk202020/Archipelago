@@ -85,6 +85,7 @@ class _LocationData:
             case _LocationType.BRONZE: return options.include_medals > IncludeMedals.option_off
             case _LocationType.SILVER: return options.include_medals > IncludeMedals.option_bronze
             case _LocationType.GOLD: return options.include_medals > IncludeMedals.option_silver
+            case _LocationType.PLATINUM: return options.include_medals == IncludeMedals.option_platinum
             case _:  return True
 
 class _LocationType(IntEnum):
