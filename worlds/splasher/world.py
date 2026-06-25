@@ -1,15 +1,13 @@
 from typing import Any
-
 from Options import Toggle
 from rule_builder.rules import Has
 from worlds.AutoWorld import World
 from worlds.splasher.rules import SplasherRules
-from worlds.splasher.utils import SplasherUtils
+from worlds.splasher.utils import SplasherUtils,SplasherLevelName
 from worlds.splasher.web import SplasherWebWorld
-from worlds.splasher.regions import SplasherLevelName
 
 from . import regions
-from .items import SplasherItem, SplasherItemGroupName, SplasherPowerItem
+from .items import SplasherItem, SplasherItemGroupName, SplasherPowerItem, SplasherZoneKey
 from .locations import SplasherLocation
 from .options import IncludeKeys, SplasherOptions,RandomizePowers
 
@@ -52,6 +50,8 @@ class SplasherWorld(World):
         match(self.options.include_keys):
             case IncludeKeys.option_level:
                 itempool += [SplasherItem(x, self.player) for x in SplasherLevelName.all_entrance_keys()]
+            case IncludeKeys.option_zone: 
+                itempool += [SplasherItem(x, self.player) for x in SplasherZoneKey.literals()]
             case _:
                 pass
 

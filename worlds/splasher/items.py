@@ -6,8 +6,7 @@ from enum import StrEnum
 from random import Random
 
 from BaseClasses import Item,ItemClassification
-from worlds.splasher.utils import SplasherUtils
-from .regions import SplasherLevelName
+from .utils import SplasherUtils,SplasherLevelName
 
 class SplasherItemGroupName(StrEnum):
     POWERS = "powers"
@@ -15,6 +14,7 @@ class SplasherItemGroupName(StrEnum):
     TRAPS = "traps"
     ESSENCE = "essence"
     KEYS = "keys"
+    ZONE_KEYS = "zoneKeys"
 
     def create_items(self, player: int) -> list[SplasherItem]:
         return [SplasherItem(x, player) for x in _ItemGroup.group(self).names]
@@ -30,6 +30,31 @@ class SplasherItemGroupName(StrEnum):
         ][rng.randint(0, 1)] if include_essence else SplasherItemGroupName.FILLERS
 
         return group.get_random(rng) 
+    
+class SplasherZoneKey(StrEnum):
+    RECEPTION = "Reception Hub"
+    WATER = "Water Pool"
+    RAY = "Ray Man Paradise"
+    TOXINK = "Toxink Hell"
+    OUTSKIRTS = "Inkorp Outskirts"
+    PARK = "Fun Park"
+    DOCTEUR = "Docteur's Office"
+
+    @classmethod
+    def zone_for_level(cls, id: int) -> str:
+        match(id):
+            case 1 | 2 | 6 : return cls.RECEPTION
+            case 4 | 5 | 8 | 12 : return cls.WATER
+            case 7 | 11 | 17 | 19 : return cls.RAY
+            case 15 | 18 | 20 : return cls.TOXINK
+            case 10 | 13 | 16 : return cls.OUTSKIRTS
+            case 3 | 9 | 14 : return cls.PARK
+            case 21 : return cls.DOCTEUR
+            case _ : return ""
+
+    @classmethod
+    def literals(cls) -> list[str]:
+        return [item.value for item in cls]
         
 class SplasherPowerItem(StrEnum):
     WATER = "Water Unlock"
@@ -69,6 +94,8 @@ class _ItemGroup:
                     [f"Essence ({i})" for i in [1, 10, 25, 50]], ItemClassification.filler
                 ), SplasherItemGroupName.KEYS: _ItemGroup(
                     SplasherLevelName.all_entrance_keys()
+                ), SplasherItemGroupName.ZONE_KEYS: _ItemGroup(
+                    SplasherZoneKey.literals()
                 )
             }
 
