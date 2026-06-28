@@ -1,12 +1,12 @@
 from __future__ import annotations
-
 from typing import TYPE_CHECKING, ClassVar
 
 from rule_builder.rules import Has, HasAll, Rule
-from worlds.splasher.items import SplasherItem, SplasherPowerItem
-from worlds.splasher.locations import SplasherLocationOnEachLevel, SplasherPowerLocation, SplashersLocation
-from worlds.splasher.options import RandomizePowers
-from worlds.splasher.utils import SplasherUtils
+
+from .items import SplasherItem, SplasherPowerItem
+from .locations import SplasherLocationOnEachLevel, SplasherPowerLocation, SplashersLocation
+from .options import RandomizePowers
+from .utils import SplasherUtils
 
 if TYPE_CHECKING:
     from .world import SplasherWorld

@@ -1,60 +1,60 @@
 from __future__ import annotations
-
 from _collections_abc import dict_keys
 from typing import ClassVar
 from enum import StrEnum
 from random import Random
 
 from BaseClasses import Item,ItemClassification
-from .utils import SplasherUtils,SplasherLevelName
 
-class SplasherItemGroupName(StrEnum):
-    POWERS = "powers"
-    FILLERS = "fillers"
-    TRAPS = "traps"
-    ESSENCE = "essence"
-    KEYS = "keys"
-    ZONE_KEYS = "zoneKeys"
+from .utils import SplasherUtils
 
-    def create_items(self, player: int) -> list[SplasherItem]:
-        return [SplasherItem(x, player) for x in _ItemGroup.group(self).names]
-    
-    def get_random(self, rng: Random):
-        names = _ItemGroup.group(self).names
-        return names[rng.randint(0, len(names) - 1)]
-    
+class SplasherKey:
     @staticmethod
-    def get_filler(rng: Random, include_essence: bool) -> str:
-        group = [
-            SplasherItemGroupName.FILLERS, SplasherItemGroupName.ESSENCE
-        ][rng.randint(0, 1)] if include_essence else SplasherItemGroupName.FILLERS
-
-        return group.get_random(rng) 
+    def key(i: int) -> str:
+        return f"{SplasherUtils.level(i)} : Entrance Key"
     
-class SplasherZoneKey(StrEnum):
-    RECEPTION = "Reception Hub"
-    WATER = "Water Pool"
-    RAY = "Ray Man Paradise"
-    TOXINK = "Toxink Hell"
-    OUTSKIRTS = "Inkorp Outskirts"
-    PARK = "Fun Park"
-    DOCTEUR = "Docteur's Office"
+    @classmethod
+    def keys(cls):
+        return [cls.key(i) for i in range(1, SplasherUtils.level_count)]
+    
+class SplasherZoneKey:
+    keys: ClassVar[list[str]] = [f"{x} : Zone Keys" for x in [
+        "Reception Hub", "Water Pool", 
+        "Ray Man Paradise", "Toxink Hell",
+        "Inkorp Outskirts", "Fun Park",
+        "Docteur's Office"
+    ]]
 
     @classmethod
-    def zone_for_level(cls, id: int) -> str:
+    def key(cls, id: int) -> str:
         match(id):
-            case 1 | 2 | 6 : return cls.RECEPTION
-            case 4 | 5 | 8 | 12 : return cls.WATER
-            case 7 | 11 | 17 | 19 : return cls.RAY
-            case 15 | 18 | 20 : return cls.TOXINK
-            case 10 | 13 | 16 : return cls.OUTSKIRTS
-            case 3 | 9 | 14 : return cls.PARK
-            case 21 : return cls.DOCTEUR
+            case 1 | 2 | 6 : i = 0
+            case 4 | 5 | 8 | 12 : i = 1
+            case 7 | 11 | 17 | 19 : i = 2
+            case 15 | 18 | 20 : i = 3
+            case 10 | 13 | 16 : i = 4
+            case 3 | 9 | 14 : i = 5
+            case 21 : i = 6
             case _ : return ""
+        return cls.keys[i]
+    
+class SplasherFiller:
+    filler: ClassVar[list[str]] = ["Job Promotion"]
+    trap: ClassVar[list[str]] = ["Paint Swap", "Body Aches"]
+    essence: ClassVar[list[str]] = [f"Essence ({x})" for x in [1, 10, 25, 50]]
 
     @classmethod
-    def literals(cls) -> list[str]:
-        return [item.value for item in cls]
+    def get(cls, trap_chance: int, include_essence: bool, rng: Random) -> str:
+        if trap_chance > 0 and rng.randint(0, 99) < trap_chance:
+            return cls.trap[rng.randint(0, len(cls.trap)-1)]
+
+        if include_essence:
+            i = rng.randint(0, len(cls.filler) + len(cls.essence) - 1)
+            if i < len(cls.filler):
+                return cls.filler[i]
+            return cls.essence[i - len(cls.filler)]
+        
+        return cls.filler[rng.randint(0, len(cls.filler) - 1)]
         
 class SplasherPowerItem(StrEnum):
     WATER = "Water Unlock"
@@ -62,48 +62,12 @@ class SplasherPowerItem(StrEnum):
     BOUNCY = "Bouncy Paint Unlock"
 
     @classmethod
-    def create_items_except_water(cls, player: int):
-        return [SplasherItem(x, player) for x in [cls.STICKY, cls.BOUNCY]]
+    def literals_except_water(cls) -> list[str]:
+        return [cls.STICKY.value, cls.BOUNCY.value]
 
     @classmethod
     def literals(cls) -> list[str]:
         return [item.value for item in cls]
-
-class _ItemGroup:
-    classification: ItemClassification
-    names: list[str]
-
-    type Group = dict[SplasherItemGroupName, _ItemGroup]
-    __groups: ClassVar[Group] = {}
-
-    def __init__(self, names: list[str], classification: ItemClassification=ItemClassification.progression):
-        self.names = names
-        self.classification = classification        
-
-    @staticmethod
-    def groups() -> Group:
-        if (len(_ItemGroup.__groups) == 0):
-            _ItemGroup.__groups = {
-                SplasherItemGroupName.POWERS: _ItemGroup(SplasherPowerItem.literals()), 
-                SplasherItemGroupName.FILLERS: _ItemGroup([
-                    "Job Promotion"
-                ], ItemClassification.filler), SplasherItemGroupName.TRAPS: _ItemGroup([
-                    "Paint Swap",
-                    "Body Aches"
-                ], ItemClassification.trap), SplasherItemGroupName.ESSENCE: _ItemGroup(
-                    [f"Essence ({i})" for i in [1, 10, 25, 50]], ItemClassification.filler
-                ), SplasherItemGroupName.KEYS: _ItemGroup(
-                    SplasherLevelName.all_entrance_keys()
-                ), SplasherItemGroupName.ZONE_KEYS: _ItemGroup(
-                    SplasherZoneKey.literals()
-                )
-            }
-
-        return _ItemGroup.__groups
-    
-    @staticmethod
-    def group(name: SplasherItemGroupName) -> _ItemGroup:
-        return _ItemGroup.groups()[name]    
     
 class _ItemData:
     code: int
@@ -117,16 +81,31 @@ class _ItemData:
 
     __data_table: dict[str, _ItemData] = {}
 
-    @staticmethod
-    def data_table() -> dict[str, _ItemData]: 
-        if (len(_ItemData.__data_table) == 0):
-            _ItemData.__data_table[SplasherItem.victory] = _ItemData()
-            _ItemData.__data_table[SplasherUtils.splasher] = _ItemData()
-            _ItemData.__data_table[SplasherItem.progressive_power] = _ItemData()
+    @classmethod
+    def data_table(cls) -> dict[str, _ItemData]: 
+        if (len(cls.__data_table) > 0): return cls.__data_table
 
-            for group in _ItemGroup.groups().values():
-                for name in group.names:
-                    _ItemData.__data_table[name] = _ItemData(group.classification)
+        cls.__data_table[SplasherItem.victory] = _ItemData()
+        cls.__data_table[SplasherUtils.splasher] = _ItemData()
+        cls.__data_table[SplasherItem.progressive_power] = _ItemData()
+
+        for name in SplasherPowerItem.literals():
+            cls.__data_table[name] = _ItemData()
+
+        for name in SplasherFiller.filler:
+            cls.__data_table[name] = _ItemData(ItemClassification.filler)
+
+        for name in SplasherFiller.essence:
+            cls.__data_table[name] = _ItemData(ItemClassification.filler)
+
+        for name in SplasherFiller.trap:
+            cls.__data_table[name] = _ItemData(ItemClassification.trap)
+
+        for name in SplasherKey.keys():
+            cls.__data_table[name] = _ItemData()
+
+        for name in SplasherZoneKey.keys:
+            cls.__data_table[name] = _ItemData()
 
         return _ItemData.__data_table
 

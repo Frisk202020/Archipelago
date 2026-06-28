@@ -1,13 +1,13 @@
 from typing import Any
-from Options import Toggle
+
 from rule_builder.rules import Has
 from worlds.AutoWorld import World
-from worlds.splasher.rules import SplasherRules
-from worlds.splasher.utils import SplasherUtils,SplasherLevelName
-from worlds.splasher.web import SplasherWebWorld
 
+from .rules import SplasherRules
+from .utils import SplasherUtils
+from .web import SplasherWebWorld
 from . import regions
-from .items import SplasherItem, SplasherItemGroupName, SplasherPowerItem, SplasherZoneKey
+from .items import SplasherFiller, SplasherItem, SplasherKey, SplasherPowerItem, SplasherZoneKey
 from .locations import SplasherLocation
 from .options import IncludeKeys, SplasherOptions,RandomizePowers
 
@@ -41,30 +41,28 @@ class SplasherWorld(World):
         itempool: list[SplasherItem] = [SplasherItem(SplasherUtils.splasher, self.player) for _ in range(total_splashers)]
 
         if self.options.randomize_powers == RandomizePowers.option_on:
-            itempool += SplasherItemGroupName.POWERS.create_items(self.player)
+            itempool += [SplasherItem(name, self.player) for name in SplasherPowerItem.literals()]
         elif self.options.randomize_powers == RandomizePowers.option_on_except_water:
-            itempool += SplasherPowerItem.create_items_except_water(self.player)
+            itempool += [SplasherItem(name, self.player) for name in SplasherPowerItem.literals_except_water()]
         elif self.options.randomize_powers == RandomizePowers.option_progressive:
             itempool += [SplasherItem(SplasherItem.progressive_power, self.player) for _ in range(3)]
 
         match(self.options.include_keys):
             case IncludeKeys.option_level:
-                itempool += [SplasherItem(x, self.player) for x in SplasherLevelName.all_entrance_keys()]
+                itempool += [SplasherItem(x, self.player) for x in SplasherKey.keys()]
             case IncludeKeys.option_zone: 
-                itempool += [SplasherItem(x, self.player) for x in SplasherZoneKey.literals()]
+                itempool += [SplasherItem(x, self.player) for x in SplasherZoneKey.keys]
             case _:
                 pass
 
         itempool += [
-            SplasherItem(
-                SplasherItemGroupName.TRAPS.get_random(self.multiworld.random) 
-                    if self.multiworld.random.randint(0, 99) <= self.options.trap_chance 
-                    else SplasherItemGroupName.get_filler(
-                        self.multiworld.random, 
-                        self.options.include_essence_items == Toggle.option_true
-                    ), 
-                self.player
-            ) for _ in range(len(self.multiworld.get_unfilled_locations(self.player)))
+            SplasherItem(SplasherFiller.get(
+                self.options.trap_chance.value, 
+                self.options.include_essence_items.value == 1,
+                self.multiworld.random
+            ), self.player) for _ in range(
+                len(self.multiworld.get_unfilled_locations(self.player))
+            )
         ]
 
         self.multiworld.itempool += itempool

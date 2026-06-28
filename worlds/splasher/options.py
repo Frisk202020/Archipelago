@@ -2,14 +2,9 @@ from typing import ClassVar
 from dataclasses import dataclass
 
 from Options import DefaultOnToggle, OptionGroup, Choice, Range, PerGameCommonOptions, Toggle
-from worlds.splasher.utils import SplasherUtils
 
-# Zones 
-# Main : 2, 3, 7, 15
-# Water : 5, 6, 9, 13
-# Tech : 8, 12, 18, 20
-# Park : 4, 10, 11, 17
-# Danger : 14, 16, 19, 21
+from .utils import SplasherUtils
+
 class IncludeKeys(Choice):
     """
     Determine if levels should be locked behind keys
@@ -166,6 +161,7 @@ class SplasherOptions(PerGameCommonOptions):
     death_link: DeathLink
     hero_mode: HeroMode
     include_keys: IncludeKeys
+    include_speedrun_keys: IncludeSpeedrunKeys
     # essence_sanity: EssenceSanity
 
 # Can't attach option_groups in SplasherOptions as it crashes Generate Template Options

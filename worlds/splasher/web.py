@@ -1,6 +1,6 @@
 from BaseClasses import Tutorial
 from worlds.AutoWorld import WebWorld
-from worlds.splasher.utils import SplasherUtils
+from .utils import SplasherUtils
 from .options import SplasherOptionExports
 
 
