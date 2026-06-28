@@ -9,7 +9,7 @@ from .web import SplasherWebWorld
 from . import regions
 from .items import SplasherFiller, SplasherItem, SplasherKey, SplasherPowerItem, SplasherZoneKey
 from .locations import SplasherLocation
-from .options import IncludeKeys, SplasherOptions,RandomizePowers
+from .options import IncludeKeys, IncludeMedals, SplasherOptions,RandomizePowers
 
 class SplasherWorld(World):
     """
@@ -49,12 +49,16 @@ class SplasherWorld(World):
 
         match(self.options.include_keys):
             case IncludeKeys.option_level:
-                itempool += [SplasherItem(x, self.player) for x in SplasherKey.keys()]
+                itempool += [SplasherItem(x, self.player) for x in SplasherKey.keys(False)]
+                if self.options.include_speedrun_keys.value > 0 and self.options.include_medals > IncludeMedals.option_off:
+                    itempool += [SplasherItem(x, self.player) for x in SplasherKey.keys(True)]
             case IncludeKeys.option_zone: 
-                itempool += [SplasherItem(x, self.player) for x in SplasherZoneKey.keys]
+                itempool += [SplasherItem(x, self.player) for x in SplasherZoneKey.keys(False)]
+                if self.options.include_speedrun_keys.value > 0 and self.options.include_medals > IncludeMedals.option_off:
+                    itempool += [SplasherItem(x, self.player) for x in SplasherZoneKey.keys(True)]
             case _:
                 pass
-
+        
         itempool += [
             SplasherItem(SplasherFiller.get(
                 self.options.trap_chance.value, 

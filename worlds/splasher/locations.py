@@ -21,7 +21,6 @@ class SplasherLocation(Location):
     def create_locations(world: SplasherWorld) -> None:      
         for data in _LocationData.data():
             if data.include(world.options):
-                print(f"{data.id} {data.name}")
                 SplasherLocation(world, data)
 
     def __init__(self, world: SplasherWorld, data: _LocationData) -> None:
@@ -44,11 +43,11 @@ class _LocationData:
     id: int
     name: str
     region: str
-    def __init__(self, type: _LocationType, name: str, level_id: int) -> None:
+    def __init__(self, type: _LocationType, name: str, level_id: int, speedrun: bool=False) -> None:
         self.name = name
         self.__type = type
         self.id = _LocationData.__next_id
-        self.region = SplasherUtils.level(level_id)
+        self.region = SplasherUtils.level(level_id, speedrun)
 
         _LocationData.__next_id += 1
         _LocationData.__name_to_id[name] = self.id
@@ -77,8 +76,20 @@ class _LocationData:
             cls.__data += [_LocationData(_LocationType.SPLASHER, SplashersLocation.fullname(i, j), i) for j in range(6)]
             cls.__data.append(_LocationData(_LocationType.SPLASHER_GOLD, SplashersLocation.fullname(i, None), i))
 
-        for name in SplasherLocationOnEachLevel:
-            cls.__data += [_LocationData(name.type(), name.fullname(i), i) for i in range(22)]
+        cls.__data += [_LocationData(
+            SplasherLocationOnEachLevel.CLEAR.type(), 
+            SplasherLocationOnEachLevel.CLEAR.fullname(i), 
+            i
+        ) for i in range(22)]
+
+        for name in [
+            SplasherLocationOnEachLevel.BRONZE, 
+            SplasherLocationOnEachLevel.SILVER, 
+            SplasherLocationOnEachLevel.GOLD, 
+            SplasherLocationOnEachLevel.PLATINUM
+        ]:
+            cls.__data += [_LocationData(name.type(), name.fullname(i), i, True) for i in range(22)]
+            
     
     @classmethod
     def data(cls) -> list[_LocationData]:
@@ -118,9 +129,9 @@ class SplasherLocationOnEachLevel(StrEnum):
             case SplasherLocationOnEachLevel.PLATINUM: return _LocationType.PLATINUM
 
     def fullname(self, level_id: int):
-        return f"{SplasherUtils.level(level_id)} : {self.value}"
+        return f"{SplasherUtils.level(level_id, False)} : {self.value}"
     
 class SplashersLocation:
     @classmethod
     def fullname(cls, level_id: int, splasher_id: int|None):
-        return f"{SplasherUtils.level(level_id)} : Splasher ({"Gold" if splasher_id is None else splasher_id+1})"
+        return f"{SplasherUtils.level(level_id, False)} : Splasher ({"Gold" if splasher_id is None else splasher_id+1})"

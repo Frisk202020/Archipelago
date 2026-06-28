@@ -18,10 +18,12 @@ class SplasherUtils:
         "Toxink Avenger", "The Glados Principle", "Apocalink Now",
         "Good Luck Splasher"
     ]
+    speedrun_names: ClassVar[list[str]] = [f"{x} - Time Attack" for x in level_names]
+
     level_count: ClassVar[int] = 22
 
     @classmethod
-    def level(cls, i: int):
+    def level(cls, i: int, speedrun: bool):
         if (i < 0 or i > 21):
             return f"Invalid level ({i})"
-        return cls.level_names[i]
+        return cls.speedrun_names[i] if speedrun else cls.level_names[i]

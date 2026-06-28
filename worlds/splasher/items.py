@@ -10,23 +10,32 @@ from .utils import SplasherUtils
 
 class SplasherKey:
     @staticmethod
-    def key(i: int) -> str:
-        return f"{SplasherUtils.level(i)} : Entrance Key"
+    def key(i: int, speedrun: bool) -> str:
+        return f"{SplasherUtils.level(i, speedrun)} : Entrance Key"
     
     @classmethod
-    def keys(cls):
-        return [cls.key(i) for i in range(1, SplasherUtils.level_count)]
+    def keys(cls, speedrun: bool):
+        return [cls.key(i, speedrun) for i in range(1, SplasherUtils.level_count)]
     
 class SplasherZoneKey:
-    keys: ClassVar[list[str]] = [f"{x} : Zone Keys" for x in [
+    __keys: ClassVar[list[str]] = [f"{x} : Zone Keys" for x in [
         "Reception Hub", "Water Pool", 
         "Ray Man Paradise", "Toxink Hell",
         "Inkorp Outskirts", "Fun Park",
         "Docteur's Office"
     ]]
 
+    @staticmethod
+    def __key_name(key: str, speedrun: bool) -> str:
+        return f"{key} - Time Attack" if speedrun else key
+
     @classmethod
-    def key(cls, id: int) -> str:
+    def keys(cls, speedrun: bool) -> list[str]:
+        if speedrun: return [cls.__key_name(key, speedrun) for key in cls.__keys]
+        return cls.__keys
+
+    @classmethod
+    def key(cls, id: int, speedrun: bool) -> str:
         match(id):
             case 1 | 2 | 6 : i = 0
             case 4 | 5 | 8 | 12 : i = 1
@@ -36,7 +45,7 @@ class SplasherZoneKey:
             case 3 | 9 | 14 : i = 5
             case 21 : i = 6
             case _ : return ""
-        return cls.keys[i]
+        return cls.__key_name(cls.__keys[i], speedrun)
     
 class SplasherFiller:
     filler: ClassVar[list[str]] = ["Job Promotion"]
@@ -101,10 +110,16 @@ class _ItemData:
         for name in SplasherFiller.trap:
             cls.__data_table[name] = _ItemData(ItemClassification.trap)
 
-        for name in SplasherKey.keys():
+        for name in SplasherKey.keys(False):
             cls.__data_table[name] = _ItemData()
 
-        for name in SplasherZoneKey.keys:
+        for name in SplasherZoneKey.keys(False):
+            cls.__data_table[name] = _ItemData()
+
+        for name in SplasherKey.keys(True):
+            cls.__data_table[name] = _ItemData()
+
+        for name in SplasherZoneKey.keys(True):
             cls.__data_table[name] = _ItemData()
 
         return _ItemData.__data_table
