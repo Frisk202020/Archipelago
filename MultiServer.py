@@ -2223,6 +2223,7 @@ class ServerCommandProcessor(CommonCommandProcessor):
     def __init__(self, ctx: Context):
         self.ctx = ctx
         super(ServerCommandProcessor, self).__init__()
+        self.commands["/goal"] = self._cmd_goal
 
     def output(self, text: str):
         if self.client:
@@ -2355,6 +2356,20 @@ class ServerCommandProcessor(CommonCommandProcessor):
             return True
 
         self.output(f"Could not find player {player_name} to allow the !release command for.")
+        return False
+    
+    def _cmd_goal(self, player: str) -> bool:
+        seeked_player, usable, response = get_intended_text(player, self.ctx.player_names.values())
+        if usable:
+            team, slot = self.ctx.player_name_lookup[seeked_player]
+            client = self.ctx.clients[team][slot]
+
+            if (client.__len__() > 0):
+                update_client_status(self.ctx, client[0], ClientStatus.CLIENT_GOAL)
+                return True
+            else:
+                self.output("No clients on this slot")
+
         return False
 
     @mark_raw

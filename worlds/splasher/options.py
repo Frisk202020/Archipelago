@@ -1,23 +1,34 @@
 from typing import ClassVar
 from dataclasses import dataclass
 
-from Options import DefaultOnToggle, OptionGroup, Choice, Range, PerGameCommonOptions
-from worlds.splasher.utils import SplasherUtils
+from Options import DefaultOnToggle, OptionGroup, Choice, Range, PerGameCommonOptions, Toggle
 
-"""
-TODO (future versions) : implement level randomization options:
--> Open World (default) : ideal for non-blocking multiplayer
--> Open : lock levels behind keys, for longer multiplayer sessions
--> Closed : Each level clear unlocks the next, but order is randomized : for solo sessions
+from .utils import SplasherUtils
 
-TODO for deathlink :
-- disabled
-- normal : 5 deaths
-- hard : 3 deaths
-- deathless : 1 death
-- legend : killing splashers triggers it
-"""
+class IncludeKeys(Choice):
+    """
+    Determine if levels should be locked behind keys
+    If enabled, the first level will still be unlocked
 
+    Off - Do not include keys : every level is unlocked from start
+    Zone - Include thematic keys : each key unlocks from 3 to 5 levels
+    Level - Include a key for each level : each key unlocks one level
+    """
+    display_name = "Include Keys"
+    option_off = 0
+    option_zone = 1
+    option_level = 2
+
+class IncludeSpeedrunKeys(Toggle):
+    """
+    Determine if time attack should have its own keys. This is only relevant if `Include Keys` is enabled.
+
+    Off - A key unlocks a level in both modes
+    On - Include keys specific to Time Attack. Key pattern will match the one of `Include Keys` (Off, Zone or Level)
+    """
+    display_name = "Include Speedrun Keys"
+
+# Will be implemented in future updates
 class RandomizeCheckpoints(Choice):
     """
     Determine if level checkpoints are added to the item pool
@@ -45,12 +56,14 @@ class RandomizePowers(Choice):
 
     Off - Powers aren't randomized : you need to reach the power unlock in the intended level
     On - Power unlocks are randomized into the pool
-    Progressive - Powers are randomized and fire delay is increased, needing pool items to reach its original balance
+    On Except Water - Randomize Stickink and Bouncink, but unlock Water as normal. This prevents the early game to be too restrictive.
+    Progressive - Powers are randomized as progressive items : water, then stickink, then bouncink
     """
     display_name = "Randomize Powers"
     option_off = 0
     option_on = 1
-    option_progressive = 2
+    option_on_except_water = 2
+    option_progressive = 3
     default = option_on
 
 class RandomizeGoldenSplashers(DefaultOnToggle):
@@ -59,6 +72,7 @@ class RandomizeGoldenSplashers(DefaultOnToggle):
     """
     display_name = "Randomize Golden Splashers"
 
+# Traps will be implemented in a future update
 class TrapChance(Range):
     """
     Average amount of traps in the filler pool
@@ -67,6 +81,22 @@ class TrapChance(Range):
     range_start = 0
     range_end = 100
     default = 0
+
+class DeathLink(Choice):
+    """
+    Determine which death link level to apply
+
+    Off - Don't enable death link
+    On - Enable death link, which is triggered on your side every 5 deaths
+    Brave - Trigger on 3 deaths
+    Insane - Trigger on every death
+    Legend - Also trigger the death link when you accidentally kill a splasher
+    """
+    display_name = "DeathLink"
+    option_off = 0
+    option_on = 1
+    option_insane = 2
+    option_legend = 3
 
 class IncludeMedals(Choice):
     """
@@ -83,6 +113,7 @@ class IncludeMedals(Choice):
     option_bronze = 1
     option_silver = 2
     option_gold = 3
+    option_platinum = 4
     default = option_off
 
 class SplashersGoal(Range):
@@ -94,22 +125,51 @@ class SplashersGoal(Range):
     range_end = SplasherUtils.regular_splashers + SplasherUtils.golden_splashers 
     default = 80
 
+class HeroMode(Toggle):
+    """
+    Enable Hero Mode, in which killing a Splasher triggers a death for the player as well.
+    Notice this counts towards Death Link if enabled
+    """
+    display_name = "Hero Mode"
+
+# Will be implemented in future updates
+@dataclass
+class EssenceSanity(Choice):
+    """
+    Turn essence count (in each level) into a location of its own.
+
+    Off - Disabled, only the golden splasher is a location (if enabled)
+    On - Each 100-points milestone is a location : this adds 154 locations
+    Madness - Each 10-points milestone is a location : this adds 1540 locations
+    Insanity - Every single new milestone is a location : this adds 15400 locations
+    """
+    display_name = "Essence Sanity"
+    option_off = 0
+    option_on = 1
+    option_madness = 2
+    option_insanity = 3
+
 @dataclass
 class SplasherOptions(PerGameCommonOptions):
-    randomize_checkpoints: RandomizeCheckpoints
+    # randomize_checkpoints: RandomizeCheckpoints
     include_essence_items: IncludeEssenceItem
     randomize_powers: RandomizePowers
     randomize_golden_splashers: RandomizeGoldenSplashers
     splashers_goal: SplashersGoal
     include_medals: IncludeMedals
     trap_chance: TrapChance
+    death_link: DeathLink
+    hero_mode: HeroMode
+    include_keys: IncludeKeys
+    include_speedrun_keys: IncludeSpeedrunKeys
+    # essence_sanity: EssenceSanity
 
 # Can't attach option_groups in SplasherOptions as it crashes Generate Template Options
 class SplasherOptionExports:
     option_groups: ClassVar[list[OptionGroup]] = [
         OptionGroup(
             "Randomizer options",
-            [RandomizeCheckpoints, RandomizePowers, RandomizeGoldenSplashers]
+            [RandomizePowers, RandomizeGoldenSplashers, IncludeKeys]
         ), OptionGroup(
             "Goal",
             [SplashersGoal]
@@ -117,7 +177,7 @@ class SplasherOptionExports:
             "Optional items",
             [IncludeEssenceItem]
         ), OptionGroup(
-            "Traps",
-            [TrapChance]
+            "Making your life miserable",
+            [HeroMode, TrapChance, DeathLink]
         )
     ]
