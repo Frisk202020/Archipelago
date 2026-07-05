@@ -123,6 +123,20 @@ class _ItemData:
             cls.__data_table[name] = _ItemData()
 
         return _ItemData.__data_table
+    
+    @classmethod
+    def group_table(cls) -> dict[str, set[str]]:
+        out: dict[str, set[str]] = {}
+        out["Powers"] = set(SplasherPowerItem.literals())
+        out["Filler"] = set(SplasherFiller.filler)
+        out["Traps"] = set(SplasherFiller.trap)
+        out["Essence"] = set(SplasherFiller.essence)
+        out["Level Keys"] = set(SplasherKey.keys(False))
+        out["Level Keys - Time Attack"] = set(SplasherKey.keys(True))
+        out["Zone Keys"] = set(SplasherZoneKey.keys(False))
+        out["Zone Keys - Time Attack"] = set(SplasherZoneKey.keys(True))
+
+        return out
 
 class SplasherItem(Item):
     game = SplasherUtils.splasher
@@ -132,6 +146,10 @@ class SplasherItem(Item):
     def __init__(self, name: str, player: int):
         data = _ItemData.data_table()[name]
         Item.__init__(self, name, data.classification, data.code, player)
+
+    @staticmethod
+    def group_table():
+        return _ItemData.group_table()
 
     @staticmethod
     def get_code(name: str) -> int:

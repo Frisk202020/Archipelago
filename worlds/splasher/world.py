@@ -24,6 +24,7 @@ class SplasherWorld(World):
     options: SplasherOptions # type: ignore
 
     item_name_to_id = {name:SplasherItem.get_code(name) for name in SplasherItem.keys()}
+    item_name_groups = SplasherItem.group_table()
     location_name_to_id = SplasherLocation.name_to_id()
     
 
