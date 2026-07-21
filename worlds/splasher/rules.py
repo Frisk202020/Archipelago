@@ -330,7 +330,7 @@ class SplasherRules:
         _Rule.set(SplasherLocationOnEachLevel.GOLD.fullname(19), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY))
         _Rule.set(SplasherLocationOnEachLevel.PLATINUM.fullname(19), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY, SplasherPowerItem.BOUNCY))
 
-        _Rule.set(SplashersLocation.fullname(20, 0), Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplashersLocation.fullname(20, 0), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.BOUNCY))
         _Rule.set(SplashersLocation.fullname(20, 1), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.BOUNCY))
         _Rule.set(SplashersLocation.fullname(20, 2), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.BOUNCY))
         _Rule.set(SplashersLocation.fullname(20, 3), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.BOUNCY))

@@ -76,6 +76,7 @@ class SplasherWorld(World):
         option_names = [key for key in SplasherOptions.__annotations__.keys()]
         data=  self.options.as_dict(*option_names)  
         data["seed"] = str(self.multiworld.seed)
+        data["location_count"] = SplasherLocation.count
 
         return data     
 

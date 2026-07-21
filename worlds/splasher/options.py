@@ -82,21 +82,17 @@ class TrapChance(Range):
     range_end = 100
     default = 0
 
-class DeathLink(Choice):
+class DeathLink(Range):
     """
-    Determine which death link level to apply
+    Determine how to enable death link
 
-    Off - Don't enable death link
-    On - Enable death link, which is triggered on your side every 5 deaths
-    Brave - Trigger on 3 deaths
-    Insane - Trigger on every death
-    Legend - Also trigger the death link when you accidentally kill a splasher
+    0 or less : disabled
+    1 or more : number of deaths to trigger a death link (max 100)
     """
     display_name = "DeathLink"
-    option_off = 0
-    option_on = 1
-    option_insane = 2
-    option_legend = 3
+    range_start = 0
+    range_end = 100
+    default = 0
 
 class IncludeMedals(Choice):
     """

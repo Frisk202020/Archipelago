@@ -50,7 +50,7 @@ class SplasherZoneKey:
 class SplasherFiller:
     filler: ClassVar[list[str]] = ["Job Promotion"]
     trap: ClassVar[list[str]] = ["Paint Swap", "Body Aches"]
-    essence: ClassVar[list[str]] = [f"Essence ({x})" for x in [1, 10, 25, 50]]
+    essence: ClassVar[list[str]] = [f"Essence ({x})" for x in [1, 2, 5]]
 
     @classmethod
     def get(cls, trap_chance: int, include_essence: bool, rng: Random) -> str:
@@ -104,11 +104,11 @@ class _ItemData:
         for name in SplasherFiller.filler:
             cls.__data_table[name] = _ItemData(ItemClassification.filler)
 
-        for name in SplasherFiller.essence:
-            cls.__data_table[name] = _ItemData(ItemClassification.filler)
-
         for name in SplasherFiller.trap:
             cls.__data_table[name] = _ItemData(ItemClassification.trap)
+
+        for name in SplasherFiller.essence:
+            cls.__data_table[name] = _ItemData(ItemClassification.useful)
 
         for name in SplasherKey.keys(False):
             cls.__data_table[name] = _ItemData()

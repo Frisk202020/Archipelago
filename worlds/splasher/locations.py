@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
 class SplasherLocation(Location):
     game = SplasherUtils.splasher
+    count: ClassVar[int] = 0
 
     @staticmethod
     def name_to_id() -> dict[str, int]:
@@ -22,6 +23,7 @@ class SplasherLocation(Location):
         for data in _LocationData.data():
             if data.include(world.options):
                 SplasherLocation(world, data)
+                SplasherLocation.count += 1
 
     def __init__(self, world: SplasherWorld, data: _LocationData) -> None:
         region = world.get_region(data.region)
