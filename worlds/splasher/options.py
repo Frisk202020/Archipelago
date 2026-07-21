@@ -61,6 +61,24 @@ class EssenceStorage(Choice):
     option_abundant = 10
     default = option_light
 
+class EssenceTraps(Choice):
+    """
+    Determine how to include essence traps in the pool. Traps will increase back the essence counter, though the goal is capped at 700.
+    If essence items are not enabled but this option is, these traps will still be included but have no actual effect (since goal will never drop bellow 700).
+    Also, this option will have no effect if trap chance is set to 0 (which is the default).
+
+    Off - Do not include these traps
+    Forgiving - Only include small traps (up to 3 lost essence per trap)
+    Annoying - Include traps removing up to 10 essence storage
+    A Bad Time - Include traps removing up to 25 essence storage
+    """
+    option_name = "Essence traps balancing"
+    option_off = 0
+    option_forgiving = 3
+    option_annoying = 5
+    option_a_bad_time = 8
+    default = option_off
+
 class RandomizePowers(Choice):
     """
     Determine how to unlock powers (water and paint) in the game
@@ -160,6 +178,7 @@ class EssenceSanity(Choice):
 class SplasherOptions(PerGameCommonOptions):
     # randomize_checkpoints: RandomizeCheckpoints
     essence_storage: EssenceStorage
+    essence_traps: EssenceTraps
     randomize_powers: RandomizePowers
     randomize_golden_splashers: RandomizeGoldenSplashers
     splashers_goal: SplashersGoal
@@ -176,13 +195,13 @@ class SplasherOptionExports:
     option_groups: ClassVar[list[OptionGroup]] = [
         OptionGroup(
             "Randomizer options",
-            [RandomizePowers, RandomizeGoldenSplashers, IncludeKeys]
+            [RandomizePowers, RandomizeGoldenSplashers, IncludeMedals, IncludeKeys, IncludeSpeedrunKeys]
         ), OptionGroup(
             "Goal",
             [SplashersGoal]
         ), OptionGroup(
             "Optional items",
-            [EssenceStorage]
+            [EssenceStorage, EssenceTraps]
         ), OptionGroup(
             "Making your life miserable",
             [HeroMode, TrapChance, DeathLink]

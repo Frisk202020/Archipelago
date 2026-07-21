@@ -65,6 +65,7 @@ class SplasherWorld(World):
             len(self.multiworld.get_unfilled_locations(self.player)) - len(itempool), 
             self.options.trap_chance.value,
             self.options.essence_storage.value,
+            self.options.essence_traps.value,
             self.multiworld.random
         )
 

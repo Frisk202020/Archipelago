@@ -56,18 +56,27 @@ class SplasherFiller:
         "Overflowing essence barrel", "Goombase essence tank",
         "Secretaire essence tank", "Docteur's essence storage"
     ] # 1, 2, 5, 10, 15, 20, 25, 30, 40, 50
+    essence_traps: ClassVar[list[str]] = [
+        "Minor essence leak", "Small essence leak", "Noticeable essence leak",
+        "Severe essence leak", "Essence container crack", "Forgiving essence fee",
+        "Severe essence fee", "Le Docteur's essence tax"
+    ] # 1, 2, 3, 5, 10, 15, 20, 25
+
+    @staticmethod
+    def random_item(l: list[str], rng: Random) -> str:
+        return l[rng.randint(0, len(l)-1)]
 
     @classmethod
-    def get_remaining(cls, player: int, request: int, trap_chance: int, essence_storage: int, rng: Random) -> list[SplasherItem]:
-        n_items = request
-        if trap_chance > 0:
-            for _ in range(request):
-                if rng.randint(0, 99) < trap_chance: n_items -= 1
-        
-        out = [SplasherItem(cls.trap[rng.randint(0, len(cls.trap)-1)], player) for _ in range(request - n_items)]
-
+    def get_remaining(cls, player: int, request: int, trap_chance: int, essence_storage: int, essence_traps: int, rng: Random) -> list[SplasherItem]:
+        out: list[SplasherItem] = []
         pool = cls.filler + [cls.essence[i] for i in range(essence_storage)]
-        return out + [SplasherItem(pool[rng.randint(0, len(pool)-1)], player) for _ in range(n_items)]
+        trap_pool = cls.trap + [cls.essence_traps[i] for i in range(essence_traps)]
+
+        for _ in range(request):
+            item = SplasherFiller.random_item(trap_pool, rng) if rng.randint(0, 99) < trap_chance else SplasherFiller.random_item(pool, rng)
+            out.append(SplasherItem(item, player))
+
+        return out
         
 class SplasherPowerItem(StrEnum):
     WATER = "Water Gun"
@@ -113,6 +122,9 @@ class _ItemData:
 
         for name in SplasherFiller.essence:
             cls.__data_table[name] = _ItemData(ItemClassification.useful)
+
+        for name in SplasherFiller.essence_traps:
+            cls.__data_table[name] = _ItemData(ItemClassification.trap)
 
         for name in SplasherKey.keys(False):
             cls.__data_table[name] = _ItemData()
