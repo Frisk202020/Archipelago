@@ -43,12 +43,23 @@ class RandomizeCheckpoints(Choice):
     option_chaotic = 2
     default = option_off
 
-class IncludeEssenceItem(DefaultOnToggle):
+class EssenceStorage(Choice):
     """
-    Determine if the pool includes essence items in the junk pool. 
-    These are stored until a manual release inside a level, upon which these are added to the current counter.
+    Determine how to include essence storage items in the pool. Essence storage lowers permanently the goal to save the golden splasher, these are useful items included as filler.
+    If enabled, you can choose a balance that avoids essence to be irrelevant when having too few filler or to trivialize essence progression when flooded with fillers.
+    Notice that setting higher options only *allows* to include bigger items, but what will actually be chosen is still random.
+    
+    Off - Do not include these items
+    Light - Only include small items (up to 5 essence per item)
+    Rich - Include items sending up to 25 essence
+    Abundant - Include items sending up to 50 essence
     """
-    display_name = "Include essence items"
+    option_name = "Essence balancing"
+    option_off = 0
+    option_light = 3
+    option_rich = 7
+    option_abundant = 10
+    default = option_light
 
 class RandomizePowers(Choice):
     """
@@ -148,7 +159,7 @@ class EssenceSanity(Choice):
 @dataclass
 class SplasherOptions(PerGameCommonOptions):
     # randomize_checkpoints: RandomizeCheckpoints
-    include_essence_items: IncludeEssenceItem
+    essence_storage: EssenceStorage
     randomize_powers: RandomizePowers
     randomize_golden_splashers: RandomizeGoldenSplashers
     splashers_goal: SplashersGoal
@@ -171,7 +182,7 @@ class SplasherOptionExports:
             [SplashersGoal]
         ), OptionGroup(
             "Optional items",
-            [IncludeEssenceItem]
+            [EssenceStorage]
         ), OptionGroup(
             "Making your life miserable",
             [HeroMode, TrapChance, DeathLink]

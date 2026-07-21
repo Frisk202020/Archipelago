@@ -48,27 +48,31 @@ class SplasherZoneKey:
         return cls.__key_name(cls.__keys[i], speedrun)
     
 class SplasherFiller:
-    filler: ClassVar[list[str]] = ["Job Promotion"]
+    filler: ClassVar[list[str]] = ["Job Promotion", "Le Docteur's autograph", "A Secreatire's ticket"]
     trap: ClassVar[list[str]] = ["Paint Swap", "Body Aches"]
-    essence: ClassVar[list[str]] = [f"Essence ({x})" for x in [1, 2, 5]]
+    essence: ClassVar[list[str]] = [
+        "Essence drop", "Essence drops", "Broken essence flask",
+        "Full essence flask", "Dry essence barrel", "Essence barrel",
+        "Overflowing essence barrel", "Goombase essence tank",
+        "Secretaire essence tank", "Docteur's essence storage"
+    ] # 1, 2, 5, 10, 15, 20, 25, 30, 40, 50
 
     @classmethod
-    def get(cls, trap_chance: int, include_essence: bool, rng: Random) -> str:
-        if trap_chance > 0 and rng.randint(0, 99) < trap_chance:
-            return cls.trap[rng.randint(0, len(cls.trap)-1)]
-
-        if include_essence:
-            i = rng.randint(0, len(cls.filler) + len(cls.essence) - 1)
-            if i < len(cls.filler):
-                return cls.filler[i]
-            return cls.essence[i - len(cls.filler)]
+    def get_remaining(cls, player: int, request: int, trap_chance: int, essence_storage: int, rng: Random) -> list[SplasherItem]:
+        n_items = request
+        if trap_chance > 0:
+            for _ in range(request):
+                if rng.randint(0, 99) < trap_chance: n_items -= 1
         
-        return cls.filler[rng.randint(0, len(cls.filler) - 1)]
+        out = [SplasherItem(cls.trap[rng.randint(0, len(cls.trap)-1)], player) for _ in range(request - n_items)]
+
+        pool = cls.filler + [cls.essence[i] for i in range(essence_storage)]
+        return out + [SplasherItem(pool[rng.randint(0, len(pool)-1)], player) for _ in range(n_items)]
         
 class SplasherPowerItem(StrEnum):
-    WATER = "Water Unlock"
-    STICKY = "Sticky Paint Unlock"
-    BOUNCY = "Bouncy Paint Unlock"
+    WATER = "Water Gun"
+    STICKY = "Stickink Gun"
+    BOUNCY = "Bouncink Gun"
 
     @classmethod
     def literals_except_water(cls) -> list[str]:

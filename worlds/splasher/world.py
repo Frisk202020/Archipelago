@@ -59,16 +59,14 @@ class SplasherWorld(World):
                     itempool += [SplasherItem(x, self.player) for x in SplasherZoneKey.keys(True)]
             case _:
                 pass
-        
-        itempool += [
-            SplasherItem(SplasherFiller.get(
-                self.options.trap_chance.value, 
-                self.options.include_essence_items.value == 1,
-                self.multiworld.random
-            ), self.player) for _ in range(
-                len(self.multiworld.get_unfilled_locations(self.player))
-            )
-        ]
+
+        itempool += SplasherFiller.get_remaining(
+            self.player, 
+            len(self.multiworld.get_unfilled_locations(self.player)) - len(itempool), 
+            self.options.trap_chance.value,
+            self.options.essence_storage.value,
+            self.multiworld.random
+        )
 
         self.multiworld.itempool += itempool
 
