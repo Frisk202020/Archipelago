@@ -86,7 +86,7 @@ class RandomizePowers(Choice):
     Off - Powers aren't randomized : you need to reach the power unlock in the intended level
     On - Power unlocks are randomized into the pool
     On Except Water - Randomize Stickink and Bouncink, but unlock Water as normal. This prevents the early game to be too restrictive.
-    Progressive - Powers are randomized as progressive items : water, then stickink, then bouncink
+    Progressive - Powers are randomized as progressive items : progressive water, then stickink, then bouncink
     """
     display_name = "Randomize Powers"
     option_off = 0
@@ -94,6 +94,21 @@ class RandomizePowers(Choice):
     option_on_except_water = 2
     option_progressive = 3
     default = option_on
+
+class ProgressiveWater(Toggle):
+    """
+    Determine if water is progressive. This option is only relevant if `Randomize Powers` is not `Off`.
+    If enabled, water now has 3 levels : polluted, clean and speedink
+    - Polluted water is a weaker water (25% of the damage) and kills you (and splashers) on contact
+    - Clean water is vanilla water, except it can't damage bubons of the Inkorp Express or the Secretaire.
+    - Speedink doubles your speed on floor contact and is able to damage bubons. It is required to goal.
+
+    Now, the option you choose for your powers randomization changes how progressive water is placed in the pool :
+    - On default randomization, 3 progressive water items are placed along with bouncink and stickink
+    - On progressive randomization, progressive water unlocks before the rest. This means stickink is now level 4 and bouncink is level 5
+    - On randomization excluding water, the water gun unlock will give you the first level of progressive water. Those remaining are placed into the pool.
+    """
+    display_name = "Progressive Water"
 
 class RandomizeGoldenSplashers(DefaultOnToggle):
     """
@@ -188,6 +203,7 @@ class SplasherOptions(PerGameCommonOptions):
     hero_mode: HeroMode
     include_keys: IncludeKeys
     include_speedrun_keys: IncludeSpeedrunKeys
+    progressive_water: ProgressiveWater
     # essence_sanity: EssenceSanity
 
 # Can't attach option_groups in SplasherOptions as it crashes Generate Template Options
@@ -195,7 +211,7 @@ class SplasherOptionExports:
     option_groups: ClassVar[list[OptionGroup]] = [
         OptionGroup(
             "Randomizer options",
-            [RandomizePowers, RandomizeGoldenSplashers, IncludeMedals, IncludeKeys, IncludeSpeedrunKeys]
+            [RandomizePowers, ProgressiveWater, RandomizeGoldenSplashers, IncludeMedals, IncludeKeys, IncludeSpeedrunKeys]
         ), OptionGroup(
             "Goal",
             [SplashersGoal]

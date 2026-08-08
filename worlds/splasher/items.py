@@ -79,17 +79,21 @@ class SplasherFiller:
         return out
         
 class SplasherPowerItem(StrEnum):
+    PROGRESSIVE_WATER = "Progressive Water"
     WATER = "Water Gun"
     STICKY = "Stickink Gun"
     BOUNCY = "Bouncink Gun"
 
     @classmethod
-    def literals_except_water(cls) -> list[str]:
-        return [cls.STICKY.value, cls.BOUNCY.value]
+    def literals(cls):
+        return [x.value for x in cls]
 
     @classmethod
-    def literals(cls) -> list[str]:
-        return [item.value for item in cls]
+    def pool(cls, progressive_water: int | None) -> list[str]:
+        match progressive_water:
+            case None: return [x.value for x in [cls.STICKY, cls.BOUNCY]] 
+            case 0: return [x.value for x in [cls.WATER, cls.STICKY, cls.BOUNCY]]
+            case _: return [cls.PROGRESSIVE_WATER for _ in range(progressive_water)] + [x.value for x in [cls.STICKY, cls.BOUNCY]]
     
 class _ItemData:
     code: int

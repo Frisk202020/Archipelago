@@ -41,12 +41,20 @@ class SplasherWorld(World):
         total_splashers = SplasherUtils.regular_splashers + SplasherUtils.golden_splashers if self.options.randomize_golden_splashers else SplasherUtils.regular_splashers
         itempool: list[SplasherItem] = [SplasherItem(SplasherUtils.splasher, self.player) for _ in range(total_splashers)]
 
-        if self.options.randomize_powers == RandomizePowers.option_on:
-            itempool += [SplasherItem(name, self.player) for name in SplasherPowerItem.literals()]
-        elif self.options.randomize_powers == RandomizePowers.option_on_except_water:
-            itempool += [SplasherItem(name, self.player) for name in SplasherPowerItem.literals_except_water()]
-        elif self.options.randomize_powers == RandomizePowers.option_progressive:
-            itempool += [SplasherItem(SplasherItem.progressive_power, self.player) for _ in range(3)]
+        match self.options.randomize_powers:
+            case RandomizePowers.option_progressive: itempool += [
+                SplasherItem(SplasherItem.progressive_power, self.player)
+                for _ in range(5 if self.options.progressive_water else 3)
+            ]
+            case RandomizePowers.option_on_except_water: itempool += [
+                SplasherItem(name, self.player) 
+                for name in SplasherPowerItem.pool(2 if self.options.progressive_water else None)
+            ]
+            case RandomizePowers.option_on: itempool += [
+                SplasherItem(name, self.player) 
+                for name in SplasherPowerItem.pool(3 if self.options.progressive_water else 0)
+            ]
+            case _: pass
 
         match(self.options.include_keys):
             case IncludeKeys.option_level:
