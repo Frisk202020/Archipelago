@@ -95,7 +95,7 @@ class RandomizePowers(Choice):
     option_progressive = 3
     default = option_on
 
-class ProgressiveWater(Toggle):
+class ProgressiveWater(DefaultOnToggle):
     """
     Determine if water is progressive. This option is only relevant if `Randomize Powers` is not `Off`.
     If enabled, water now has 3 levels : polluted, clean and speedink
@@ -199,7 +199,31 @@ class SplasherPool(Range):
     display_name = "Splasher Pool"
     range_start = 0
     range_end = 100
-    default = 0
+    default = 70
+
+class TrapAmnesty(Choice):
+    """
+    Define how **all active traps** are revoked.
+
+    Deaths - Traps are revoked after dying a few times, that amount being set by the `TrapDeathAmnesty` option
+    Checkpoints - Traps are revoked upon reaching a checkpoint (in any mode)
+    Both - Traps are revoked after dying a few times or upon reaching a checkpoint
+    """
+    display_name = "Trap Amnesty"
+    option_deaths = 0
+    option_checkpoints = 1
+    option_both = 2
+    default = option_both
+
+class TrapDeathAmnesty(Range):
+    """
+    Define how many deaths are required to revoke traps. This is relevant only if `TrapAmnesty` is set to `deaths` or `both`.
+    The death counter starts at 0 when a trap is received (wether you already have active traps or not).
+    """
+    display_name = "Trap Death Amnesty"
+    range_start = 1
+    range_end = 100
+    default = 5
 
 @dataclass
 class SplasherOptions(PerGameCommonOptions):
@@ -216,6 +240,8 @@ class SplasherOptions(PerGameCommonOptions):
     include_speedrun_keys: IncludeSpeedrunKeys
     progressive_water: ProgressiveWater
     splasher_pool: SplasherPool
+    trap_amnesty: TrapAmnesty
+    trap_death_amnesty: TrapDeathAmnesty
     # randomize_checkpoints: RandomizeCheckpoints
     # essence_sanity: EssenceSanity
 
@@ -233,6 +259,6 @@ class SplasherOptionExports:
             [EssenceStorage, EssenceTraps]
         ), OptionGroup(
             "Making your life miserable",
-            [HeroMode, TrapChance, DeathLink]
+            [HeroMode, TrapChance, DeathLink, TrapAmnesty, TrapDeathAmnesty]
         )
     ]
