@@ -1,4 +1,5 @@
 from typing import Any
+from math import floor
 
 from rule_builder.rules import Has
 from worlds.AutoWorld import World
@@ -38,8 +39,15 @@ class SplasherWorld(World):
         return SplasherItem(name, self.player)
 
     def create_items(self) -> None:
-        total_splashers = SplasherUtils.regular_splashers + SplasherUtils.golden_splashers if self.options.randomize_golden_splashers else SplasherUtils.regular_splashers
-        itempool: list[SplasherItem] = [SplasherItem(SplasherUtils.splasher, self.player) for _ in range(total_splashers)]
+        total_in_pool = SplasherUtils.regular_splashers
+        required_in_pool = self.options.splashers_goal.value
+        if self.options.randomize_golden_splashers:
+            total_in_pool += SplasherUtils.golden_splashers
+        else:
+            required_in_pool -= SplasherUtils.golden_splashers # because we already force-place those
+
+        filler_in_pool = floor((total_in_pool - required_in_pool) * (100 - self.options.splasher_pool.value) / 100.)
+        itempool: list[SplasherItem] = [SplasherItem(SplasherUtils.splasher, self.player) for _ in range(total_in_pool - filler_in_pool)]
 
         match self.options.randomize_powers:
             case RandomizePowers.option_progressive: itempool += [

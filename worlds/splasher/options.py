@@ -173,7 +173,6 @@ class HeroMode(Toggle):
     display_name = "Hero Mode"
 
 # Will be implemented in future updates
-@dataclass
 class EssenceSanity(Choice):
     """
     Turn essence count (in each level) into a location of its own.
@@ -189,9 +188,21 @@ class EssenceSanity(Choice):
     option_madness = 2
     option_insanity = 3
 
+class SplasherPool(Range):
+    """
+    Define how many splashers, among those unnecessary to reach the goal, are kept as actual splashers.
+    The remaining will be converted as filler / essence / traps.
+
+    You define a percentage, so for example 0% means only the exact amount of splashers required by the goal will be placed, 
+    while 100% means all 154 splashers will be included in the pool.
+    """
+    display_name = "Splasher Pool"
+    range_start = 0
+    range_end = 100
+    default = 0
+
 @dataclass
 class SplasherOptions(PerGameCommonOptions):
-    # randomize_checkpoints: RandomizeCheckpoints
     essence_storage: EssenceStorage
     essence_traps: EssenceTraps
     randomize_powers: RandomizePowers
@@ -204,6 +215,8 @@ class SplasherOptions(PerGameCommonOptions):
     include_keys: IncludeKeys
     include_speedrun_keys: IncludeSpeedrunKeys
     progressive_water: ProgressiveWater
+    splasher_pool: SplasherPool
+    # randomize_checkpoints: RandomizeCheckpoints
     # essence_sanity: EssenceSanity
 
 # Can't attach option_groups in SplasherOptions as it crashes Generate Template Options
@@ -211,7 +224,7 @@ class SplasherOptionExports:
     option_groups: ClassVar[list[OptionGroup]] = [
         OptionGroup(
             "Randomizer options",
-            [RandomizePowers, ProgressiveWater, RandomizeGoldenSplashers, IncludeMedals, IncludeKeys, IncludeSpeedrunKeys]
+            [RandomizePowers, ProgressiveWater, RandomizeGoldenSplashers, IncludeMedals, IncludeKeys, IncludeSpeedrunKeys, SplasherPool]
         ), OptionGroup(
             "Goal",
             [SplashersGoal]

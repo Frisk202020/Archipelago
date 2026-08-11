@@ -49,7 +49,7 @@ class SplasherZoneKey:
     
 class SplasherFiller:
     filler: ClassVar[list[str]] = ["Job Promotion", "Le Docteur's autograph", "A Secreatire's ticket"]
-    trap: ClassVar[list[str]] = ["Paint Swap", "Body Aches"]
+    trap: ClassVar[list[str]] = ["Paint Swap", "Mad Gun", "Feet State"]
     essence: ClassVar[list[str]] = [
         "Essence drop", "Essence drops", "Broken essence flask",
         "Full essence flask", "Dry essence barrel", "Essence barrel",
