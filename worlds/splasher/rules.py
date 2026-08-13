@@ -1,7 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, ClassVar
-
-from rule_builder.rules import Has, HasAll, Rule
+from rule_builder.rules import Has, Rule
 
 from .items import SplasherItem, SplasherPowerItem
 from .locations import SplasherLocationOnEachLevel, SplasherPowerLocation, SplashersLocation
@@ -98,7 +97,12 @@ class SplasherRules:
         _Rule.set(SplashersLocation.fullname(1, 0), SplasherRules.__polluted_water() | Has(SplasherPowerItem.BOUNCY))
         _Rule.set(SplashersLocation.fullname(1, 1), SplasherRules.__clean_water())
         _Rule.set(SplashersLocation.fullname(1, 2), SplasherRules.__clean_water())
-        _Rule.set(SplashersLocation.fullname(1, 3), SplasherRules.__clean_water())
+        _Rule.set(
+            SplashersLocation.fullname(1, 3), 
+            Has(SplasherPowerItem.WATER) | \
+            Has(SplasherPowerItem.PROGRESSIVE_WATER, 2) | \
+            (Has(SplasherPowerItem.PROGRESSIVE_WATER, 1) & Has(SplasherPowerItem.BOUNCY))
+        )
         _Rule.set(SplashersLocation.fullname(1, 4), SplasherRules.__clean_water())
         _Rule.set(SplashersLocation.fullname(1, 5), SplasherRules.__clean_water())
         _Rule.set(SplashersLocation.fullname(1, None), SplasherRules.__clean_water())
@@ -169,13 +173,17 @@ class SplasherRules:
         _Rule.set(SplashersLocation.fullname(6, 5), Has(SplasherPowerItem.STICKY) & (SplasherRules.__polluted_water() | Has(SplasherPowerItem.BOUNCY)))
         _Rule.set(SplashersLocation.fullname(6, None), Has(SplasherPowerItem.STICKY) & (SplasherRules.__polluted_water() | Has(SplasherPowerItem.BOUNCY)))
         _Rule.set(SplasherLocationOnEachLevel.CLEAR.fullname(6), Has(SplasherPowerItem.STICKY) & (SplasherRules.__polluted_water() | Has(SplasherPowerItem.BOUNCY)))
-        _Rule.set(SplasherLocationOnEachLevel.BRONZE.fullname(6), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY))
-        _Rule.set(SplasherLocationOnEachLevel.SILVER.fullname(6), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY))
-        _Rule.set(SplasherLocationOnEachLevel.GOLD.fullname(6), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY))
-        _Rule.set(SplasherLocationOnEachLevel.PLATINUM.fullname(6), HasAll(SplasherPowerItem.WATER, SplasherPowerItem.STICKY))
+        _Rule.set(SplasherLocationOnEachLevel.BRONZE.fullname(6), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY))
+        _Rule.set(SplasherLocationOnEachLevel.SILVER.fullname(6), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY))
+        _Rule.set(SplasherLocationOnEachLevel.GOLD.fullname(6), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY))
+        _Rule.set(SplasherLocationOnEachLevel.PLATINUM.fullname(6), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY))
 
         _Rule.set(SplashersLocation.fullname(7, 0), SplasherRules.__polluted_water() & (Has(SplasherPowerItem.STICKY) | Has(SplasherPowerItem.BOUNCY)))
-        _Rule.set(SplashersLocation.fullname(7, 1), SplasherRules.__polluted_water() & (Has(SplasherPowerItem.BOUNCY) | Has(SplasherPowerItem.STICKY)))
+        _Rule.set(
+            SplashersLocation.fullname(7, 1), 
+            (SplasherRules.__polluted_water() & Has(SplasherPowerItem.BOUNCY)) |
+            ((Has(SplasherPowerItem.WATER) | Has(SplasherPowerItem.PROGRESSIVE_WATER, 2)) & (Has(SplasherPowerItem.BOUNCY) | Has(SplasherPowerItem.STICKY)))
+        )
         _Rule.set(SplashersLocation.fullname(7, 2), SplasherRules.__polluted_water() & (Has(SplasherPowerItem.BOUNCY) | Has(SplasherPowerItem.STICKY)))
         _Rule.set(SplashersLocation.fullname(7, 3), SplasherRules.__polluted_water() & (Has(SplasherPowerItem.BOUNCY) | Has(SplasherPowerItem.STICKY)))
         _Rule.set(SplashersLocation.fullname(7, 4), SplasherRules.__polluted_water() & (Has(SplasherPowerItem.BOUNCY) | Has(SplasherPowerItem.STICKY)))
@@ -213,12 +221,23 @@ class SplasherRules:
         _Rule.set(SplasherLocationOnEachLevel.GOLD.fullname(9), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY))
         _Rule.set(SplasherLocationOnEachLevel.PLATINUM.fullname(9), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY))
 
-        _Rule.set(SplashersLocation.fullname(10, 0), Has(SplasherPowerItem.STICKY) & (SplasherRules.__polluted_water() | Has(SplasherPowerItem.BOUNCY)))
+        _Rule.set(
+            SplashersLocation.fullname(10, 0), 
+            Has(SplasherPowerItem.STICKY) & (Has(SplasherPowerItem.WATER) | Has(SplasherPowerItem.PROGRESSIVE_WATER, 2) | Has(SplasherPowerItem.BOUNCY))
+        )
         _Rule.set(SplashersLocation.fullname(10, 1), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY))
-        _Rule.set(SplashersLocation.fullname(10, 2), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY))
+        _Rule.set(
+            SplashersLocation.fullname(10, 2), (
+                Has(SplasherPowerItem.WATER) | Has(SplasherPowerItem.PROGRESSIVE_WATER, 2) | (Has(SplasherPowerItem.PROGRESSIVE_WATER, 1) & Has(SplasherPowerItem.BOUNCY))
+            ) & Has(SplasherPowerItem.STICKY)
+        )
         _Rule.set(SplashersLocation.fullname(10, 3), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY))
         _Rule.set(SplashersLocation.fullname(10, 4), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY))
-        _Rule.set(SplashersLocation.fullname(10, 5), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY))
+        _Rule.set(
+            SplashersLocation.fullname(10, 2), (
+                Has(SplasherPowerItem.WATER) | Has(SplasherPowerItem.PROGRESSIVE_WATER, 2) | (Has(SplasherPowerItem.PROGRESSIVE_WATER, 1) & Has(SplasherPowerItem.BOUNCY))
+            ) & Has(SplasherPowerItem.STICKY)
+        )
         _Rule.set(SplashersLocation.fullname(10, None), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY))
         _Rule.set(SplasherLocationOnEachLevel.CLEAR.fullname(10), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY))
         _Rule.set(SplasherLocationOnEachLevel.BRONZE.fullname(10), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY))
@@ -228,7 +247,11 @@ class SplasherRules:
 
         _Rule.set(SplashersLocation.fullname(11, 0), SplasherRules.__polluted_water() & (Has(SplasherPowerItem.STICKY) | Has(SplasherPowerItem.BOUNCY)))
         _Rule.set(SplashersLocation.fullname(11, 1), SplasherRules.__polluted_water() & (Has(SplasherPowerItem.STICKY) | Has(SplasherPowerItem.BOUNCY)))
-        _Rule.set(SplashersLocation.fullname(11, 2), SplasherRules.__polluted_water() & (Has(SplasherPowerItem.STICKY) | Has(SplasherPowerItem.BOUNCY)))
+        _Rule.set(
+            SplashersLocation.fullname(11, 2), 
+            (SplasherRules.__polluted_water() & Has(SplasherPowerItem.BOUNCY)) |
+            ((Has(SplasherPowerItem.WATER) | Has(SplasherPowerItem.PROGRESSIVE_WATER, 2)) & (Has(SplasherPowerItem.BOUNCY) | Has(SplasherPowerItem.STICKY)))
+        )
         _Rule.set(SplashersLocation.fullname(11, 3), SplasherRules.__polluted_water() & (Has(SplasherPowerItem.STICKY) | Has(SplasherPowerItem.BOUNCY)))
         _Rule.set(SplashersLocation.fullname(11, 4), SplasherRules.__polluted_water() & (Has(SplasherPowerItem.STICKY) | Has(SplasherPowerItem.BOUNCY)))
         _Rule.set(SplashersLocation.fullname(11, 5), SplasherRules.__polluted_water() & (Has(SplasherPowerItem.STICKY) | Has(SplasherPowerItem.BOUNCY)))
@@ -252,32 +275,32 @@ class SplasherRules:
         _Rule.set(SplasherLocationOnEachLevel.GOLD.fullname(12), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY))
         _Rule.set(SplasherLocationOnEachLevel.PLATINUM.fullname(12), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY))
 
-        _Rule.set(SplashersLocation.fullname(13, 0), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY))
-        _Rule.set(SplashersLocation.fullname(13, 1), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplashersLocation.fullname(13, 2), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplashersLocation.fullname(13, 3), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplashersLocation.fullname(13, 4), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplashersLocation.fullname(13, 5), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplashersLocation.fullname(13, None), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplasherLocationOnEachLevel.CLEAR.fullname(13), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplasherPowerLocation.BOUNCINK.fullname(), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY))
-        _Rule.set(SplasherLocationOnEachLevel.BRONZE.fullname(13), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplasherLocationOnEachLevel.SILVER.fullname(13), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplasherLocationOnEachLevel.GOLD.fullname(13), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplasherLocationOnEachLevel.PLATINUM.fullname(13), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplashersLocation.fullname(13, 0), SplasherRules.__speed_water() & Has(SplasherPowerItem.STICKY))
+        _Rule.set(SplashersLocation.fullname(13, 1), SplasherRules.__speed_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplashersLocation.fullname(13, 2), SplasherRules.__speed_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplashersLocation.fullname(13, 3), SplasherRules.__speed_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplashersLocation.fullname(13, 4), SplasherRules.__speed_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplashersLocation.fullname(13, 5), SplasherRules.__speed_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplashersLocation.fullname(13, None), SplasherRules.__speed_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplasherLocationOnEachLevel.CLEAR.fullname(13), SplasherRules.__speed_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplasherPowerLocation.BOUNCINK.fullname(), SplasherRules.__speed_water() & Has(SplasherPowerItem.STICKY))
+        _Rule.set(SplasherLocationOnEachLevel.BRONZE.fullname(13), SplasherRules.__speed_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplasherLocationOnEachLevel.SILVER.fullname(13), SplasherRules.__speed_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplasherLocationOnEachLevel.GOLD.fullname(13), SplasherRules.__speed_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplasherLocationOnEachLevel.PLATINUM.fullname(13), SplasherRules.__speed_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
 
         _Rule.set(SplashersLocation.fullname(14, 0), Has(SplasherPowerItem.BOUNCY))
         _Rule.set(SplashersLocation.fullname(14, 1), Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplashersLocation.fullname(14, 2), SplasherRules.__speed_water() & Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplashersLocation.fullname(14, 3), SplasherRules.__speed_water() & Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplashersLocation.fullname(14, 4), SplasherRules.__speed_water() & Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplashersLocation.fullname(14, 5), SplasherRules.__speed_water() & Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplashersLocation.fullname(14, None), SplasherRules.__speed_water() & Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplasherLocationOnEachLevel.CLEAR.fullname(14), SplasherRules.__speed_water() & Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplasherLocationOnEachLevel.BRONZE.fullname(14), SplasherRules.__speed_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplasherLocationOnEachLevel.SILVER.fullname(14), SplasherRules.__speed_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplasherLocationOnEachLevel.GOLD.fullname(14), SplasherRules.__speed_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
-        _Rule.set(SplasherLocationOnEachLevel.PLATINUM.fullname(14), SplasherRules.__speed_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplashersLocation.fullname(14, 2), SplasherRules.__polluted_water() & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplashersLocation.fullname(14, 3), SplasherRules.__polluted_water() & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplashersLocation.fullname(14, 4), SplasherRules.__polluted_water() & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplashersLocation.fullname(14, 5), SplasherRules.__polluted_water() & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplashersLocation.fullname(14, None), SplasherRules.__polluted_water() & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplasherLocationOnEachLevel.CLEAR.fullname(14), SplasherRules.__polluted_water() & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplasherLocationOnEachLevel.BRONZE.fullname(14), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplasherLocationOnEachLevel.SILVER.fullname(14), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplasherLocationOnEachLevel.GOLD.fullname(14), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
+        _Rule.set(SplasherLocationOnEachLevel.PLATINUM.fullname(14), SplasherRules.__polluted_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY))
 
         _Rule.set(SplashersLocation.fullname(15, 0), Has(SplasherPowerItem.BOUNCY))
         _Rule.set(SplashersLocation.fullname(15, 1), Has(SplasherPowerItem.BOUNCY))
