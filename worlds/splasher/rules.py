@@ -83,6 +83,62 @@ class SplasherRules:
     @staticmethod
     def __speed_water() -> Rule:
         return Has(SplasherPowerItem.WATER) | Has(SplasherPowerItem.PROGRESSIVE_WATER, 3)
+
+    checkpoint_rules: ClassVar[dict[int, dict[int, Rule]]] = {
+        1: { 
+            0: __polluted_water(),
+            1: __clean_water()
+        }, 2: {
+            0: __polluted_water()
+        }, 3: {
+            0: __polluted_water() | Has(SplasherPowerItem.STICKY) | Has(SplasherPowerItem.BOUNCY),
+            1: __polluted_water()
+        }, 4: {
+            0: __polluted_water() | Has(SplasherPowerItem.STICKY) | Has(SplasherPowerItem.BOUNCY),
+            1: __polluted_water()
+        }, 5: {
+            0: __polluted_water()
+        }, 6: {
+            0: Has(SplasherPowerItem.STICKY) | Has(SplasherPowerItem.BOUNCY),
+            1: Has(SplasherPowerItem.STICKY) & (Has(SplasherPowerItem.BOUNCY) | __polluted_water())
+        }, 7: {
+            0: __polluted_water() & (Has(SplasherPowerItem.STICKY) | Has(SplasherPowerItem.BOUNCY))
+        }, 8: {
+            0: Has(SplasherPowerItem.STICKY) | Has(SplasherPowerItem.BOUNCY),
+            3: __polluted_water() & Has(SplasherPowerItem.STICKY)
+        }, 9: {
+            0: __polluted_water() & (Has(SplasherPowerItem.STICKY) | Has(SplasherPowerItem.BOUNCY))
+        }, 10: {
+            0: Has(SplasherPowerItem.STICKY),
+            1: __polluted_water() & Has(SplasherPowerItem.STICKY)
+        }, 11: {
+            0: __polluted_water() & (Has(SplasherPowerItem.STICKY) | Has(SplasherPowerItem.BOUNCY))
+        }, 12: {
+            0: __polluted_water() & (Has(SplasherPowerItem.STICKY) | Has(SplasherPowerItem.BOUNCY))
+        }, 13: {
+            0: Has(SplasherPowerItem.STICKY) | Has(SplasherPowerItem.BOUNCY),
+            1: __speed_water() & (Has(SplasherPowerItem.STICKY) | Has(SplasherPowerItem.BOUNCY))
+        }, 14: {
+            0: Has(SplasherPowerItem.BOUNCY),
+            2: __polluted_water() & Has(SplasherPowerItem.BOUNCY)
+        }, 15: {
+            0: Has(SplasherPowerItem.BOUNCY),
+            2: __polluted_water() & Has(SplasherPowerItem.BOUNCY),
+            3: __polluted_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY)
+        }, 16: {
+            0: __polluted_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY)
+        }, 17: {
+            0: __polluted_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY)
+        }, 18: {
+            0: __polluted_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY)
+        }, 19: {
+            0: __polluted_water() & Has(SplasherPowerItem.BOUNCY)
+        }, 20: {
+            0: __polluted_water() & Has(SplasherPowerItem.BOUNCY)
+        }, 21: {
+            0: __speed_water() & Has(SplasherPowerItem.STICKY) & Has(SplasherPowerItem.BOUNCY)
+        }
+    }
     
     @staticmethod
     def __add_power_rules():
