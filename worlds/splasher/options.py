@@ -225,6 +225,20 @@ class TrapDeathAmnesty(Range):
     range_end = 100
     default = 5
 
+class CheckpointSanity(Choice):
+    """
+    Define how checkpoints are randomized. If enabled, each checkpoint of the game is its own location and an item is created for each checkpoint.
+    What the checkpoint item rewards depends on the chosen option.
+
+    Off - checkpoints behave as in vanilla
+    Useful - Checkpoints won't save your progress if you don't have the item. Items are `Useful` meaning these aren't required to collect any item.
+    Progression - Checkpoints won't have any effect if you don't have the item : progress is not saved, splashers aren't collected, traps aren't revoked and essence is not rewarded.
+    """
+    display_name = "Checkpoint Sanity"
+    option_off = 0
+    option_useful = 1
+    option_progression = 2
+
 @dataclass
 class SplasherOptions(PerGameCommonOptions):
     essence_storage: EssenceStorage
@@ -242,7 +256,7 @@ class SplasherOptions(PerGameCommonOptions):
     splasher_pool: SplasherPool
     trap_amnesty: TrapAmnesty
     trap_death_amnesty: TrapDeathAmnesty
-    # randomize_checkpoints: RandomizeCheckpoints
+    checkpoint_sanity: CheckpointSanity
     # essence_sanity: EssenceSanity
 
 # Can't attach option_groups in SplasherOptions as it crashes Generate Template Options
@@ -250,7 +264,11 @@ class SplasherOptionExports:
     option_groups: ClassVar[list[OptionGroup]] = [
         OptionGroup(
             "Randomizer options",
-            [RandomizePowers, ProgressiveWater, RandomizeGoldenSplashers, IncludeMedals, IncludeKeys, IncludeSpeedrunKeys, SplasherPool]
+            [
+                RandomizePowers, ProgressiveWater, RandomizeGoldenSplashers, 
+                IncludeMedals, IncludeKeys, IncludeSpeedrunKeys, SplasherPool,
+                CheckpointSanity
+            ]
         ), OptionGroup(
             "Goal",
             [SplashersGoal]

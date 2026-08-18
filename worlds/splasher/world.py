@@ -8,9 +8,9 @@ from .rules import SplasherRules
 from .utils import SplasherUtils
 from .web import SplasherWebWorld
 from . import regions
-from .items import SplasherFiller, SplasherItem, SplasherKey, SplasherPowerItem, SplasherZoneKey
+from .items import SplasherCheckpoint, SplasherFiller, SplasherItem, SplasherKey, SplasherPowerItem, SplasherZoneKey
 from .locations import SplasherLocation
-from .options import IncludeKeys, IncludeMedals, SplasherOptions,RandomizePowers
+from .options import CheckpointSanity, IncludeKeys, IncludeMedals, SplasherOptions,RandomizePowers
 
 class SplasherWorld(World):
     """
@@ -75,6 +75,9 @@ class SplasherWorld(World):
                     itempool += [SplasherItem(x, self.player) for x in SplasherZoneKey.keys(True)]
             case _:
                 pass
+
+        if (self.options.checkpoint_sanity > CheckpointSanity.option_off):
+            itempool += [SplasherItem(x, self.player) for x in SplasherCheckpoint.items()]
 
         itempool += SplasherFiller.get_remaining(
             self.player, 

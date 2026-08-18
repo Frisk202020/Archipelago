@@ -94,6 +94,32 @@ class SplasherPowerItem(StrEnum):
             case None: return [x.value for x in [cls.STICKY, cls.BOUNCY]] 
             case 0: return [x.value for x in [cls.WATER, cls.STICKY, cls.BOUNCY]]
             case _: return [cls.PROGRESSIVE_WATER for _ in range(progressive_water)] + [x.value for x in [cls.STICKY, cls.BOUNCY]]
+
+class SplasherCheckpoint:
+    __specific_ids: ClassVar[dict[int, int]] = {
+        0: 3,
+        5: 3,
+        13: 4,
+        14: 4,
+        21: 7
+    }
+
+    @staticmethod
+    def name(level: int, id: int) -> str:
+        return f"{SplasherUtils.level_names[level]} - Checkpoint {1 + id}"
+
+    @classmethod
+    def id_range(cls, level: int) -> int:
+        return cls.__specific_ids.get(level) or 5
+
+    @classmethod
+    def items(cls) -> list[str]:
+        out: list[str] = []
+        for i in range(SplasherUtils.level_count):
+            for j in range(cls.id_range(i)): 
+                out.append(cls.name(i, j))
+
+        return out
     
 class _ItemData:
     code: int
@@ -142,6 +168,9 @@ class _ItemData:
         for name in SplasherZoneKey.keys(True):
             cls.__data_table[name] = _ItemData()
 
+        for name in SplasherCheckpoint.items():
+            cls.__data_table[name] = _ItemData(ItemClassification.useful)
+
         return _ItemData.__data_table
     
     @classmethod
@@ -155,6 +184,7 @@ class _ItemData:
         out["Level Keys - Time Attack"] = set(SplasherKey.keys(True))
         out["Zone Keys"] = set(SplasherZoneKey.keys(False))
         out["Zone Keys - Time Attack"] = set(SplasherZoneKey.keys(True))
+        out["Checkpoints"] = set(SplasherCheckpoint.items())
 
         return out
 

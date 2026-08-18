@@ -3,8 +3,9 @@ from enum import IntEnum, StrEnum
 from typing import TYPE_CHECKING, ClassVar
 
 from BaseClasses import Location
+from worlds.splasher.items import SplasherCheckpoint
 
-from .options import IncludeMedals, SplasherOptions
+from .options import CheckpointSanity, IncludeMedals, SplasherOptions
 from .utils import SplasherUtils
 
 if TYPE_CHECKING:
@@ -39,6 +40,7 @@ class _LocationType(IntEnum):
     GOLD = 5
     PLATINUM = 6
     POWER = 7
+    CHECKPOINT = 8
 
 class _LocationData:
     __type: _LocationType
@@ -60,6 +62,7 @@ class _LocationData:
             case _LocationType.SILVER: return options.include_medals > IncludeMedals.option_bronze
             case _LocationType.GOLD: return options.include_medals > IncludeMedals.option_silver
             case _LocationType.PLATINUM: return options.include_medals == IncludeMedals.option_platinum
+            case _LocationType.CHECKPOINT: return options.checkpoint_sanity > CheckpointSanity.option_off
             case _:  return True
 
     __data: ClassVar[list[_LocationData]] =  []
@@ -91,7 +94,10 @@ class _LocationData:
             SplasherLocationOnEachLevel.PLATINUM
         ]:
             cls.__data += [_LocationData(name.type(), name.fullname(i), i, True) for i in range(22)]
-            
+
+        for i in range(SplasherUtils.level_count):
+            for j in range(SplasherCheckpoint.id_range(i)):
+                cls.__data.append(_LocationData(_LocationType.CHECKPOINT, SplasherCheckpoint.name(i, j), i))            
     
     @classmethod
     def data(cls) -> list[_LocationData]:
