@@ -1,4 +1,4 @@
-This apworld is meant as a learning tool for new apworld devs.
+cThis apworld is meant as a learning tool for new apworld devs.
 It is a completely standalone resource, but there will be links to additional resources when appropriate.
 
 #################
