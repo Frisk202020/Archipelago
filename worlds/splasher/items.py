@@ -100,7 +100,6 @@ class SplasherCheckpoint:
         0: 3,
         5: 3,
         13: 4,
-        14: 4,
         21: 7
     }
 

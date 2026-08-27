@@ -3,9 +3,11 @@ from enum import IntEnum, StrEnum
 from typing import TYPE_CHECKING, Callable, ClassVar, Optional
 
 from BaseClasses import Location
+from rule_builder.rules import Rule
+
 from worlds.splasher.items import SplasherCheckpoint
 from worlds.splasher.regions import splasher_area_name, splasher_ckp_region_name
-from worlds.splasher.rules import SplasherPowerRules, SplasherRules
+from worlds.splasher.rules import SplasherArea, SplasherPowerRules
 
 from .options import CheckpointSanity, IncludeMedals, SplasherOptions
 from .utils import SplasherUtils
@@ -22,8 +24,8 @@ class SplasherLocation(Location):
         return _LocationData.name_to_id()
     
     @staticmethod
-    def create_locations(world: SplasherWorld) -> None:      
-        for data in _LocationData.data():
+    def create_locations(world: SplasherWorld) -> None:     
+        for data in _BaseLocationData.data():
             if data.include(world.options):
                 SplasherLocation(world, data)
                 SplasherLocation.count += 1
@@ -31,6 +33,12 @@ class SplasherLocation(Location):
     def __init__(self, world: SplasherWorld, data: _BaseLocationData) -> None:
         region = world.get_region(data.region(world.options))
         Location.__init__(self, world.player, data.name, data.id, region)
+
+        if data.rule is not None:
+            r = data.rule(world.options)
+            if r is not None:
+                world.set_rule(self, r)
+
         region.locations.append(self)
         
 class _LocationType(IntEnum):
@@ -49,9 +57,9 @@ class _BaseLocationData:
     id: int
     name: str
     region: Callable[[SplasherOptions], str]
-    rule: Optional[SplasherPowerRules]
+    rule: Optional[Callable[[SplasherOptions], Optional[Rule]]]
 
-    def __init__(self, type: _LocationType, name: str, region: Callable[[SplasherOptions], str], rule: Optional[SplasherPowerRules]) -> None:
+    def __init__(self, type: _LocationType, name: str, region: Callable[[SplasherOptions], str], rule: Optional[Callable[[SplasherOptions], Optional[Rule]]]) -> None:
         self.name = name
         self.__type = type
         self.id = _BaseLocationData.__next_id
@@ -76,12 +84,7 @@ class _BaseLocationData:
 
     @classmethod
     def __init_data(cls) -> None:
-        cls.__data = [
-            _LocationData(_LocationType.POWER, SplasherPowerLocation.WATER.fullname(), 0),
-            _LocationData(_LocationType.POWER, SplasherPowerLocation.STICKINK.fullname(), 5),
-            _LocationData(_LocationType.POWER, SplasherPowerLocation.BOUNCINK.fullname(), 13)
-        ]
-
+        cls.__data = [_PowerCheckpoint(x) for x in SplasherPowerLocation]
         cls.__data += [
             _Splasher(0, 0, 0),
             _Splasher(0, 1, 1),
@@ -96,18 +99,17 @@ class _BaseLocationData:
             _Splasher(1, 4, 4),
             *_Splasher.many(1, None, 5, None),
 
-            _Vortex(2, None, 3, SplasherPowerRules.polluted_water | SplasherPowerRules.bouncy),
+            _Vortex(2, None, 0, SplasherPowerRules.polluted_water | SplasherPowerRules.bouncy),
             _Vortex(2, 0, 3),
             _Splasher(2, 1, 1),
             _Splasher(2, 2, 2),
             _Splasher(2, 4, 4),
             *_Splasher.many(2, None, 5, None),
 
+            *_Vortex.many(3, 1, 2, 4),
             _Splasher(3, 0, 0, SplasherPowerRules.polluted_water),
             _Splasher(3, 1, 1),
-            _Vortex(3, -1, 2),
             _Splasher(3, 3, 3),
-            _Vortex(3, -1, 4),
             *_Splasher.many(3, None, 5, None),
 
             *_Vortex.many(4, 1, 1, 3),
@@ -149,7 +151,7 @@ class _BaseLocationData:
             _Splasher(10, 3, 3),
             *_Splasher.many_with_rule(10, None, SplasherPowerRules.unstick_rule, 5, None),
 
-            *_Vortex.many(11, 1, 1, 5),
+            *_Vortex.many(11, 0, 1, 5),
             _Splasher(11, 0, 0),
             _Splasher(11, 2, 2, SplasherPowerRules.unstick_rule),
             _Splasher(11, 3, 3),
@@ -218,16 +220,6 @@ class _BaseLocationData:
             *_Splasher.many(21, 6, 4, 5),
             _Splasher(21, None, None),
         ]
-        
-        for i in range(22):
-            cls.__data += [_LocationData(_LocationType.SPLASHER, SplashersLocation.fullname(i, j), i) for j in range(6)]
-            cls.__data.append(_LocationData(_LocationType.SPLASHER_GOLD, SplashersLocation.fullname(i, None), i))
-
-        cls.__data += [_LocationData(
-            SplasherLocationOnEachLevel.CLEAR.type(), 
-            SplasherLocationOnEachLevel.CLEAR.fullname(i), 
-            i
-        ) for i in range(22)]
 
         for name in [
             SplasherLocationOnEachLevel.BRONZE, 
@@ -239,7 +231,8 @@ class _BaseLocationData:
 
         for i in range(SplasherUtils.level_count):
             for j in range(SplasherCheckpoint.id_range(i)):
-                cls.__data.append(_LocationData(_LocationType.CHECKPOINT, SplasherCheckpoint.name(i, j), i))            
+                cls.__data.append(_Checkpoint(i, j))
+            cls.__data.append(_Checkpoint(i, None))      
     
     @classmethod
     def data(cls) -> list[_BaseLocationData]:
@@ -260,14 +253,39 @@ class _LocationData(_BaseLocationData):
         region = SplasherUtils.level(level, speedrun)
         super().__init__(type, name, lambda opt: region, None)
 
+class _Checkpoint(_BaseLocationData):
+    def __init__(self, lvl: int, id: int|None):
+        (area_id, _) = SplasherArea.get_area(lvl, id)
+        super().__init__(
+            _LocationType.CLEAR if id is None else _LocationType.CHECKPOINT,
+            SplasherLocationOnEachLevel.CLEAR.fullname(lvl) if id is None else SplasherCheckpoint.name(lvl, id),
+            lambda opt: splasher_area_name(SplasherUtils.level(lvl, False), area_id),
+            None
+        )
+
+class _PowerCheckpoint(_BaseLocationData):
+    @staticmethod
+    def __region(power: SplasherPowerLocation) -> tuple[int, int|None]:
+        match(power):
+            case SplasherPowerLocation.WATER: return (0, None)
+            case SplasherPowerLocation.STICKINK: return (5, 0)
+            case SplasherPowerLocation.BOUNCINK: return (13, 1)
+
+    def __init__(self, power: SplasherPowerLocation):
+        (lvl, area) = _PowerCheckpoint.__region(power)
+        super().__init__(
+            _LocationType.POWER, power.fullname(), 
+            lambda opt: splasher_area_name(SplasherUtils.level(lvl, False), area), None
+        )
+
 class _Splasher(_BaseLocationData):
     @staticmethod
     def __get_region(level: int, checkpoint: int|None) -> Callable[[SplasherOptions], str]:
         level_name = SplasherUtils.level(level, False)
-        (area_id, is_exit_area) = SplasherRules.get_area(level, checkpoint)
+        (area_id, is_exit_area) = SplasherArea.get_area(level, checkpoint)
         area_region = splasher_area_name(level_name, area_id)
 
-        if not is_exit_area or checkpoint is None:
+        if is_exit_area or checkpoint is None:
             return lambda opt: area_region
 
         ckp_region = splasher_ckp_region_name(level_name, checkpoint)
@@ -278,7 +296,7 @@ class _Splasher(_BaseLocationData):
         super().__init__(
             type, SplashersLocation.fullname(level, id),  
             _Splasher.__get_region(level, checkpoint),
-            rule
+            None if rule is None else lambda opt: rule.get(opt.randomize_powers, opt.progressive_water == 1)
         )
 
     @classmethod
@@ -295,7 +313,7 @@ class _Vortex(_BaseLocationData):
             _LocationType.SPLASHER, 
             SplashersLocation.fullname(level, id), 
             lambda opt: splasher_area_name(SplasherUtils.level(level, False), area),
-            rule
+            None if rule is None else lambda opt: rule.get(opt.randomize_powers, opt.progressive_water == 1)
         )
 
     @classmethod

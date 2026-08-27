@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from BaseClasses import Region
 from rule_builder.rules import Has
 
-from .rules import SplasherRules
+from .rules import SplasherArea
 from .items import SplasherCheckpoint, SplasherKey, SplasherZoneKey
 from .options import CheckpointSanity, IncludeKeys, IncludeMedals
 from .utils import SplasherUtils
@@ -19,7 +19,7 @@ def splasher_ckp_region_name(lvl: str, id: int):
     return f"{lvl} : Checkpoint {id+1} juridiction"
 
 def create_all_regions(world: SplasherWorld):
-    areas = SplasherRules.get_areas()
+    areas = SplasherArea.get_areas(world)
     region_names = [SplasherUtils.origin]
 
     for lvl in range(SplasherUtils.level_count):
@@ -52,7 +52,7 @@ def __define_key_rule(world: SplasherWorld, level: int, speedrun: bool):
             return None
 
 def connect_regions(world: SplasherWorld):
-    areas = SplasherRules.get_areas()
+    areas = SplasherArea.get_areas(world)
     hub = world.get_region(SplasherUtils.origin)
 
     for lvl in range(SplasherUtils.level_count):
@@ -77,12 +77,12 @@ def connect_regions(world: SplasherWorld):
             prev_area_id: int = -1
             
             for ckp_id in range(SplasherCheckpoint.id_range(lvl)):
-                (area_id, is_exit_area) = SplasherRules.get_area(lvl, ckp_id)
+                (area_id, is_exit_area) = SplasherArea.get_area(lvl, ckp_id)
                 ckp_region_name = splasher_ckp_region_name(level, ckp_id)
                 ckp_region = world.get_region(ckp_region_name)
 
                 rule = None if is_exit_area else Has(SplasherCheckpoint.name(lvl, ckp_id))
-                level_areas[area_id].connect(ckp_region, f"{level} : validate checkpoint {ckp_id}", rule)
+                level_areas[area_id].connect(ckp_region, f"{level} : Validate checkpoint {ckp_id+1}", rule)
 
                 if (is_exit_area): continue
                 if (prev_area_id == area_id and prev_ckp is not None):

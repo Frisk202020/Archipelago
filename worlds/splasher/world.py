@@ -4,12 +4,12 @@ from math import floor
 from rule_builder.rules import Has
 from worlds.AutoWorld import World
 
-from .rules import SplasherRules
+from .rules import SplasherPowerRules, SplasherRule
 from .utils import SplasherUtils
 from .web import SplasherWebWorld
 from . import regions
 from .items import SplasherCheckpoint, SplasherFiller, SplasherItem, SplasherKey, SplasherPowerItem, SplasherZoneKey
-from .locations import SplasherLocation
+from .locations import SplasherLocation, SplasherLocationOnEachLevel, SplasherPowerLocation, SplashersLocation
 from .options import CheckpointSanity, IncludeKeys, IncludeMedals, SplasherOptions,RandomizePowers
 
 class SplasherWorld(World):
@@ -33,7 +33,30 @@ class SplasherWorld(World):
         regions.create_all_regions(self)
         regions.connect_regions(self)
         SplasherLocation.create_locations(self)
-        SplasherRules.set_rules(self)
+
+        self.__set_power_rules()
+
+        location = self.multiworld.get_location("Potatoes Ink : Splasher (2)", self.player)
+        print(f"Location rule : {location.access_rule}")
+
+        current_region = location.parent_region
+        while current_region is not None:
+            print(f"\nRegion: {current_region.name}")
+            
+            # If the region has no entrances, we've hit the root/hub
+            if not current_region.entrances:
+                print("-- ROOT REGION --")
+                break
+                
+            # Inspect all doors leading into this region
+            for entrance in current_region.entrances:
+                print(f"  <- Entrance: '{entrance.name}'")
+                if entrance.parent_region is not None: print(f"     From parent region: '{entrance.parent_region.name}'")
+                print(f"     Access rule: {entrance.access_rule}")
+                
+            # Move up to the next parent region via the first entrance
+            # (Assuming linear nesting; if multiple, you'd trace them all)
+            current_region = current_region.entrances[0].parent_region
 
     def create_item(self, name: str) -> SplasherItem:
         return SplasherItem(name, self.player)
@@ -100,3 +123,70 @@ class SplasherWorld(World):
 
     def set_rules(self):
         self.set_completion_rule(Has(SplasherItem.victory)) 
+
+    def __set_power_rules(self):
+        self.__add_splasher_goal_rules()
+        self.get_location(
+            SplasherLocationOnEachLevel.CLEAR.fullname(21)
+        ).place_locked_item(
+            SplasherItem(SplasherItem.victory, self.player)
+        )
+
+        if (self.options.randomize_powers == RandomizePowers.option_off):
+            self.get_location(
+                SplasherPowerLocation.STICKINK.fullname()
+            ).place_locked_item(
+                SplasherItem(SplasherPowerItem.STICKY, self.player)
+            )
+
+            self.get_location(
+                SplasherPowerLocation.BOUNCINK.fullname()
+            ).place_locked_item(
+                SplasherItem(SplasherPowerItem.BOUNCY, self.player)
+            )
+
+            self.get_location(
+                SplasherPowerLocation.WATER.fullname()
+            ).place_locked_item(
+                SplasherItem(SplasherPowerItem.WATER, self.player)
+            )
+    
+        elif (self.options.randomize_powers == RandomizePowers.option_on_except_water):
+            item = SplasherPowerItem.PROGRESSIVE_WATER if self.options.progressive_water else SplasherPowerItem.WATER
+            self.get_location(
+                SplasherPowerLocation.WATER.fullname()
+            ).place_locked_item(
+                SplasherItem(item, self.player)
+            )
+
+        for i in range(SplasherUtils.level_count):
+            self.__set_speedrun_rule(i)  
+
+        if not (self.options.randomize_golden_splashers):
+            for i in range(22):
+                self.get_location(
+                    SplashersLocation.fullname(i, None)
+                ).place_locked_item(SplasherItem(SplasherUtils.splasher, self.player))
+
+        SplasherRule.apply(self)
+
+    def __add_splasher_goal_rules(self):
+        rule = Has(SplasherUtils.splasher, self.options.splashers_goal.value)
+        for i in range(6):
+            SplasherRule.set(SplashersLocation.fullname(21, i), rule)
+
+        SplasherRule.set(SplashersLocation.fullname(21, None), rule)
+        SplasherRule.set(SplasherLocationOnEachLevel.CLEAR.fullname(21), rule)
+
+    def __set_speedrun_rule(self, lvl: int):
+        r = SplasherPowerRules.clean_water
+        if (lvl < 5):
+            r &= SplasherPowerRules.sticky
+        if (lvl < 13):
+            r &= SplasherPowerRules.bouncy
+
+        for lit in [
+            SplasherLocationOnEachLevel.BRONZE, SplasherLocationOnEachLevel.SILVER, 
+            SplasherLocationOnEachLevel.GOLD, SplasherLocationOnEachLevel.PLATINUM
+        ]:
+            SplasherRule.set(lit.fullname(lvl), r.get(self.options.randomize_powers, self.options.progressive_water == 1))
