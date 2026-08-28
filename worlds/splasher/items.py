@@ -1,10 +1,11 @@
 from __future__ import annotations
 from _collections_abc import dict_keys
-from typing import ClassVar
+from typing import Callable, ClassVar
 from enum import StrEnum
 from random import Random
 
 from BaseClasses import Item,ItemClassification
+from worlds.splasher.options import CheckpointSanity, SplasherOptions
 
 from .utils import SplasherUtils
 
@@ -67,14 +68,17 @@ class SplasherFiller:
         return l[rng.randint(0, len(l)-1)]
 
     @classmethod
-    def get_remaining(cls, player: int, request: int, trap_chance: int, essence_storage: int, essence_traps: int, rng: Random) -> list[SplasherItem]:
+    def get_remaining(
+        cls, player: int, options: SplasherOptions, request: int, 
+        trap_chance: int, essence_storage: int, essence_traps: int, rng: Random
+    ) -> list[SplasherItem]:
         out: list[SplasherItem] = []
         pool = cls.filler + [cls.essence[i] for i in range(essence_storage)]
         trap_pool = cls.trap + [cls.essence_traps[i] for i in range(essence_traps)]
 
         for _ in range(request):
             item = SplasherFiller.random_item(trap_pool, rng) if rng.randint(0, 99) < trap_chance else SplasherFiller.random_item(pool, rng)
-            out.append(SplasherItem(item, player))
+            out.append(SplasherItem(item, player, options))
 
         return out
         
@@ -122,10 +126,10 @@ class SplasherCheckpoint:
     
 class _ItemData:
     code: int
-    classification: ItemClassification
+    classification: Callable[[SplasherOptions], ItemClassification]
     __next: ClassVar[int] = SplasherUtils.base_id
 
-    def __init__(self, classification: ItemClassification = ItemClassification.progression):
+    def __init__(self, classification: Callable[[SplasherOptions], ItemClassification] = lambda opt: ItemClassification.progression):
         self.code = _ItemData.__next
         self.classification = classification
         _ItemData.__next += 1
@@ -144,16 +148,16 @@ class _ItemData:
             cls.__data_table[name] = _ItemData()
 
         for name in SplasherFiller.filler:
-            cls.__data_table[name] = _ItemData(ItemClassification.filler)
+            cls.__data_table[name] = _ItemData(lambda opt: ItemClassification.filler)
 
         for name in SplasherFiller.trap:
-            cls.__data_table[name] = _ItemData(ItemClassification.trap)
+            cls.__data_table[name] = _ItemData(lambda opt: ItemClassification.trap)
 
         for name in SplasherFiller.essence:
-            cls.__data_table[name] = _ItemData(ItemClassification.useful)
+            cls.__data_table[name] = _ItemData(lambda opt: ItemClassification.useful)
 
         for name in SplasherFiller.essence_traps:
-            cls.__data_table[name] = _ItemData(ItemClassification.trap)
+            cls.__data_table[name] = _ItemData(lambda opt: ItemClassification.trap)
 
         for name in SplasherKey.keys(False):
             cls.__data_table[name] = _ItemData()
@@ -168,7 +172,7 @@ class _ItemData:
             cls.__data_table[name] = _ItemData()
 
         for name in SplasherCheckpoint.items():
-            cls.__data_table[name] = _ItemData(ItemClassification.useful)
+            cls.__data_table[name] = _ItemData(lambda opt: ItemClassification.progression if opt.checkpoint_sanity == CheckpointSanity.option_progression else ItemClassification.useful)
 
         return _ItemData.__data_table
     
@@ -192,9 +196,9 @@ class SplasherItem(Item):
     victory: ClassVar[str] = "Freedom"
     progressive_power: ClassVar[str] = "Progressive Power Unlock"
 
-    def __init__(self, name: str, player: int):
+    def __init__(self, name: str, player: int, options: SplasherOptions):
         data = _ItemData.data_table()[name]
-        Item.__init__(self, name, data.classification, data.code, player)
+        Item.__init__(self, name, data.classification(options), data.code, player)
 
     @staticmethod
     def group_table():

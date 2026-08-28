@@ -59,7 +59,7 @@ class SplasherWorld(World):
             current_region = current_region.entrances[0].parent_region
 
     def create_item(self, name: str) -> SplasherItem:
-        return SplasherItem(name, self.player)
+        return SplasherItem(name, self.player, self.options)
 
     def create_items(self) -> None:
         total_in_pool = SplasherUtils.regular_splashers
@@ -70,40 +70,40 @@ class SplasherWorld(World):
             required_in_pool -= SplasherUtils.golden_splashers # because we already force-place those
 
         filler_in_pool = floor((total_in_pool - required_in_pool) * (100 - self.options.splasher_pool.value) / 100.)
-        itempool: list[SplasherItem] = [SplasherItem(SplasherUtils.splasher, self.player) for _ in range(total_in_pool - filler_in_pool)]
+        itempool: list[SplasherItem] = [SplasherItem(SplasherUtils.splasher, self.player, self.options) for _ in range(total_in_pool - filler_in_pool)]
 
         match self.options.randomize_powers:
             case RandomizePowers.option_progressive: itempool += [
-                SplasherItem(SplasherItem.progressive_power, self.player)
+                SplasherItem(SplasherItem.progressive_power, self.player, self.options)
                 for _ in range(5 if self.options.progressive_water else 3)
             ]
             case RandomizePowers.option_on_except_water: itempool += [
-                SplasherItem(name, self.player) 
+                SplasherItem(name, self.player, self.options) 
                 for name in SplasherPowerItem.pool(2 if self.options.progressive_water else None)
             ]
             case RandomizePowers.option_on: itempool += [
-                SplasherItem(name, self.player) 
+                SplasherItem(name, self.player, self.options) 
                 for name in SplasherPowerItem.pool(3 if self.options.progressive_water else 0)
             ]
             case _: pass
 
         match(self.options.include_keys):
             case IncludeKeys.option_level:
-                itempool += [SplasherItem(x, self.player) for x in SplasherKey.keys(False)]
+                itempool += [SplasherItem(x, self.player, self.options) for x in SplasherKey.keys(False)]
                 if self.options.include_speedrun_keys.value > 0 and self.options.include_medals > IncludeMedals.option_off:
-                    itempool += [SplasherItem(x, self.player) for x in SplasherKey.keys(True)]
+                    itempool += [SplasherItem(x, self.player, self.options) for x in SplasherKey.keys(True)]
             case IncludeKeys.option_zone: 
-                itempool += [SplasherItem(x, self.player) for x in SplasherZoneKey.keys(False)]
+                itempool += [SplasherItem(x, self.player, self.options) for x in SplasherZoneKey.keys(False)]
                 if self.options.include_speedrun_keys.value > 0 and self.options.include_medals > IncludeMedals.option_off:
-                    itempool += [SplasherItem(x, self.player) for x in SplasherZoneKey.keys(True)]
+                    itempool += [SplasherItem(x, self.player, self.options) for x in SplasherZoneKey.keys(True)]
             case _:
                 pass
 
         if (self.options.checkpoint_sanity > CheckpointSanity.option_off):
-            itempool += [SplasherItem(x, self.player) for x in SplasherCheckpoint.items()]
+            itempool += [SplasherItem(x, self.player, self.options) for x in SplasherCheckpoint.items()]
 
         itempool += SplasherFiller.get_remaining(
-            self.player, 
+            self.player, self.options,
             len(self.multiworld.get_unfilled_locations(self.player)) - len(itempool), 
             self.options.trap_chance.value,
             self.options.essence_storage.value,
@@ -129,26 +129,26 @@ class SplasherWorld(World):
         self.get_location(
             SplasherLocationOnEachLevel.CLEAR.fullname(21)
         ).place_locked_item(
-            SplasherItem(SplasherItem.victory, self.player)
+            SplasherItem(SplasherItem.victory, self.player, self.options)
         )
 
         if (self.options.randomize_powers == RandomizePowers.option_off):
             self.get_location(
                 SplasherPowerLocation.STICKINK.fullname()
             ).place_locked_item(
-                SplasherItem(SplasherPowerItem.STICKY, self.player)
+                SplasherItem(SplasherPowerItem.STICKY, self.player, self.options)
             )
 
             self.get_location(
                 SplasherPowerLocation.BOUNCINK.fullname()
             ).place_locked_item(
-                SplasherItem(SplasherPowerItem.BOUNCY, self.player)
+                SplasherItem(SplasherPowerItem.BOUNCY, self.player, self.options)
             )
 
             self.get_location(
                 SplasherPowerLocation.WATER.fullname()
             ).place_locked_item(
-                SplasherItem(SplasherPowerItem.WATER, self.player)
+                SplasherItem(SplasherPowerItem.WATER, self.player, self.options)
             )
     
         elif (self.options.randomize_powers == RandomizePowers.option_on_except_water):
@@ -156,7 +156,7 @@ class SplasherWorld(World):
             self.get_location(
                 SplasherPowerLocation.WATER.fullname()
             ).place_locked_item(
-                SplasherItem(item, self.player)
+                SplasherItem(item, self.player, self.options)
             )
 
         for i in range(SplasherUtils.level_count):
@@ -166,7 +166,7 @@ class SplasherWorld(World):
             for i in range(22):
                 self.get_location(
                     SplashersLocation.fullname(i, None)
-                ).place_locked_item(SplasherItem(SplasherUtils.splasher, self.player))
+                ).place_locked_item(SplasherItem(SplasherUtils.splasher, self.player, self.options))
 
         SplasherRule.apply(self)
 
