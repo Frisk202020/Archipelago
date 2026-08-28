@@ -100,117 +100,129 @@ class _BaseLocationData:
             *_Splasher.many(1, None, 5, None),
 
             _Vortex(2, None, 0, SplasherPowerRules.polluted_water | SplasherPowerRules.bouncy),
-            _Vortex(2, 0, 3),
             _Splasher(2, 1, 1),
             _Splasher(2, 2, 2),
+            _Vortex(2, 0, 3),
             _Splasher(2, 4, 4),
             *_Splasher.many(2, None, 5, None),
 
-            *_Vortex.many(3, 1, 2, 4),
             _Splasher(3, 0, 0, SplasherPowerRules.polluted_water),
             _Splasher(3, 1, 1),
+            _Vortex(3, 1, 2),
             _Splasher(3, 3, 3),
+            _Vortex(3, 1, 4),
             *_Splasher.many(3, None, 5, None),
 
-            *_Vortex.many(4, 1, 1, 3),
             _Splasher(4, 0, 0),
+            _Vortex(4, 1, 1),
             _Splasher(4, 2, 2),
+            _Vortex(4, 1, 3),
             _Splasher(4, 4, 4),
             *_Splasher.many(4, None, 5, None),
 
             _Vortex(5, None, 0, SplasherPowerRules.polluted_water | SplasherPowerRules.bouncy),
             *_Splasher.many(5, None, 1, 2, 3, 4, 5, None),
 
-            *_Vortex.many(6, 1, 1, 3),
             _Splasher(6, 0, 0),
+            _Vortex(6, 1, 1),
             _Splasher(6, 2, 2),
+            _Vortex(6, 1, 3),
             _Splasher(6, 4, 4),
             *_Splasher.many(6, None, 5, None),
 
-            *_Vortex.many(7, 0, 2, 3),
             _Splasher(7, 0, 0),
             _Splasher(7, 1, 1, SplasherPowerRules.unstick_rule),
+            *_Vortex.many(7, 0, 2, 3),
             _Splasher(7, 4, 4),
             *_Splasher.many(7, None, 5, None),
 
-            *_Vortex.many(8, 0, 0, 3),
+            _Vortex(8, 0, 0),
             _Splasher(8, 1, 1),
             _Splasher(8, 2, 2, SplasherPowerRules.polluted_water & SplasherPowerRules.non_water),
+            _Vortex(8, 0, 3),
             _Splasher(8, 4, 4),
             *_Splasher.many(8, None, 5, None),
 
-            *_Vortex.many(9, 0, 2, 4),
             _Splasher(9, 0, 0),
             _Splasher(9, 1, 1),
+            _Vortex(9, 0, 2),
             _Splasher(9, 3, 3),
+            _Vortex(9, 0, 4),
             *_Splasher.many(9, None, 5, None),
 
-            *_Vortex.many(10, 1, 1, 4),
             _Splasher(10, 0, 0, SplasherPowerRules.unstick_rule),
+            _Vortex(10, 1, 1),
             _Splasher(10, 2, 2, SplasherPowerRules.unstick_rule),
             _Splasher(10, 3, 3),
+            _Vortex(10, 1, 4),
             *_Splasher.many_with_rule(10, None, SplasherPowerRules.unstick_rule, 5, None),
 
-            *_Vortex.many(11, 0, 1, 5),
             _Splasher(11, 0, 0),
+            _Vortex(11, 0, 1),
             _Splasher(11, 2, 2, SplasherPowerRules.unstick_rule),
             _Splasher(11, 3, 3),
             _Splasher(11, 4, 4),
+            _Vortex(11, 0, 5),
             _Splasher(11, None, None),
 
-            _Vortex(12, 0, 2),
-            _Vortex(12, 0, 3, SplasherPowerRules.polluted_water & SplasherPowerRules.sticky),
             _Splasher(12, 0, 0),
             _Splasher(12, 1, 1),
+            _Vortex(12, 0, 2),
+            _Vortex(12, 0, 3, SplasherPowerRules.polluted_water & SplasherPowerRules.sticky),
             _Splasher(12, 4, 4),
             *_Splasher.many(12, None, 5, None),
 
             _Vortex(13, 1, 0),
             *_Splasher.many(13, None, 1, 2, 3, 4, 5, None),
 
-            *_Vortex.many(14, 1, 3, 5),
             _Splasher(14, 0, 0),
             _Splasher(14, 1, 1),
             _Splasher(14, 2, 2),
+            _Vortex(14, 1, 3),
             _Splasher(14, 4, 4),
+            _Vortex(14, 1, 5),
             _Splasher(14, None, None),
 
-            _Vortex(15, 0, 1),
-            _Vortex(15, 1, 3),
             _Splasher(15, 0, 0),
+            _Vortex(15, 0, 1),
             _Splasher(15, 2, 2),
+            _Vortex(15, 1, 3),
             _Splasher(15, 4, 4),
             *_Splasher.many(15, None, 5, None),
 
-            *_Vortex.many(16, 0, 1, 4),
             _Splasher(16, 0, 0),
+            _Vortex(16, 0, 1),
             _Splasher(16, 2, 2),
             _Splasher(16, 3, 3),
+            _Vortex(16, 0, 4),
             *_Splasher.many(16, None, 5, None),
 
-            *_Vortex.many(17, 0, 1, 3),
             _Splasher(17, 0, 0),
+            _Vortex(17, 0, 1),
             _Splasher(17, 2, 2),
+            _Vortex(17, 0, 3),
             _Splasher(17, 4, 4),
             *_Splasher.many(17, None, 5, None),
 
-            *_Vortex.many(18, 0, 2, 4),
             _Splasher(18, 0, 0),
             _Splasher(18, 1, 1),
+            _Vortex(18, 0, 2),
             _Splasher(18, 3, 3),
+            _Vortex(18, 0, 4),
             *_Splasher.many(18, None, 5, None),
 
             _Vortex(19, None, 0, SplasherPowerRules.bouncy),
-            _Vortex(19, 0, 4),
             _Splasher(19, 1, 1),
             _Splasher(19, 2, 2),
             _Splasher(19, 3, 3),
+            _Vortex(19, 0, 4),
             *_Splasher.many(19, None, 5, None),
 
-            *_Vortex.many(20, 0, 1, 4),
             _Splasher(20, 0, 0),
+            _Vortex(20, 0, 1),
             _Splasher(20, 2, 2),
             _Splasher(20, 3, 3),
+            _Vortex(20, 0, 4),
             *_Splasher.many(20, None, 5, None),
 
             _Splasher(21, 1, 0),
@@ -218,7 +230,7 @@ class _BaseLocationData:
             _Splasher(21, 3, 2),
             _Splasher(21, 4, 3),
             *_Splasher.many(21, 6, 4, 5),
-            _Splasher(21, None, None),
+            _Splasher(21, None, None)
         ]
 
         for name in [
@@ -229,10 +241,13 @@ class _BaseLocationData:
         ]:
             cls.__data += [_LocationData(name.type(), name.fullname(i), i, True) for i in range(22)]
 
+        # external loop for easier client implementation (see Archipelago.Data.Locations.LocationType.cs)
+        for i in range(SplasherUtils.level_count):
+            cls.__data.append(_Checkpoint(i, None))     
+
         for i in range(SplasherUtils.level_count):
             for j in range(SplasherCheckpoint.id_range(i)):
-                cls.__data.append(_Checkpoint(i, j))
-            cls.__data.append(_Checkpoint(i, None))      
+                cls.__data.append(_Checkpoint(i, j)) 
     
     @classmethod
     def data(cls) -> list[_BaseLocationData]:
