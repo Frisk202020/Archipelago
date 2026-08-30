@@ -82,11 +82,12 @@ def connect_regions(world: SplasherWorld):
                 ckp_region = world.get_region(ckp_region_name)
 
                 rule = None if is_exit_area else Has(SplasherCheckpoint.name(lvl, ckp_id))
-                level_areas[area_id].connect(ckp_region, f"{level} : Validate checkpoint {ckp_id+1}", rule)
+                area = level_region if area_id is None else level_areas[area_id] 
+                area.connect(ckp_region, f"{level} : Validate checkpoint {ckp_id+1}", rule)
 
                 if (is_exit_area): continue
                 if (prev_area_id == area_id and prev_ckp is not None):
                     ckp_region.connect(prev_ckp[1], f"{prev_ckp[0]} - Recursive entrance")
 
                 prev_ckp = (ckp_region_name, ckp_region)
-                prev_area_id = area_id
+                prev_area_id = -1 if area_id is None else area_id

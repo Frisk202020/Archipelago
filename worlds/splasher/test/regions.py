@@ -17,9 +17,6 @@ class TestRegions(SplasherTest):
         state = self.multiworld.state
         p = self.player
 
-        # for item in self.multiworld.get_items():
-        #     print(f"{item.name} : {item.classification}")
-
         self.assertTrue(state.can_reach_region(SplasherUtils.origin, p))
         self.assertFalse(state.can_reach_region("Potatoes Ink", p))
         self.assertFalse(state.can_reach_region("Potatoes Ink : Area 0", p))

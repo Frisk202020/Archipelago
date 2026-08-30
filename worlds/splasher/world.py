@@ -26,17 +26,15 @@ class SplasherWorld(World):
 
     item_name_to_id = {name:SplasherItem.get_code(name) for name in SplasherItem.keys()}
     item_name_groups = SplasherItem.group_table()
-    location_name_to_id = SplasherLocation.name_to_id()
-    
+    location_name_to_id = SplasherLocation.name_to_id()    
 
     def create_regions(self) -> None:
         regions.create_all_regions(self)
         regions.connect_regions(self)
         SplasherLocation.create_locations(self)
-
         self.__set_power_rules()
 
-        location = self.multiworld.get_location("Potatoes Ink : Splasher (2)", self.player)
+        location = self.multiworld.get_location("Welcome to Inkorp - Checkpoint 3", self.player)
         print(f"Location rule : {location.access_rule}")
 
         current_region = location.parent_region

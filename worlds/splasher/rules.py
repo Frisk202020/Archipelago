@@ -81,7 +81,6 @@ class SplasherRule:
             if not name in locations:
                 continue # if location not included by options
 
-            #print(f"{world.get_location(name)} : {rule}\n\n")
             world.set_rule(world.get_location(name), rule)
 
 
@@ -193,7 +192,9 @@ class SplasherArea:
         return [[x[1].get(world.options.randomize_powers, world.options.progressive_water == 1) for x in y] for y in cls.__checkpoint_rules]
 
     @classmethod
-    def get_area(cls, level: int, ckp: int|None) -> tuple[int, bool]:
+    def get_area(cls, level: int, ckp: int|None) -> tuple[int|None, bool]:
+        if level == 0: return (0, True) if ckp is None else (None, False)
+
         end_area_id = len(cls.__checkpoint_rules[level]) - 1
         if (ckp is None): return (end_area_id, True)
 

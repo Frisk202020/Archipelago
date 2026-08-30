@@ -62,12 +62,16 @@ class _BaseLocationData:
     def __init__(self, type: _LocationType, name: str, region: Callable[[SplasherOptions], str], rule: Optional[Callable[[SplasherOptions], Optional[Rule]]]) -> None:
         self.name = name
         self.__type = type
-        self.id = _BaseLocationData.__next_id
         self.region = region
         self.rule = rule
-
-        _BaseLocationData.__next_id += 1
-        _BaseLocationData.__name_to_id[name] = self.id
+        
+        id = _BaseLocationData.__name_to_id.get(name)
+        if id is None:
+            self.id = _BaseLocationData.__next_id
+            _BaseLocationData.__next_id += 1
+            _BaseLocationData.__name_to_id[name] = self.id
+        else:
+            self.id = id
 
     def include(self, options: SplasherOptions) -> bool:
         match(self.__type):
