@@ -8,9 +8,9 @@ from .rules import SplasherPowerRules, SplasherRule
 from .utils import SplasherUtils
 from .web import SplasherWebWorld
 from . import regions
-from .items import SplasherCheckpoint, SplasherFiller, SplasherItem, SplasherKey, SplasherPowerItem, SplasherZoneKey
+from .items import SplasherCheckpoint, SplasherCheckpointLevel, SplasherFiller, SplasherItem, SplasherKey, SplasherPowerItem, SplasherZoneKey
 from .locations import SplasherLocation, SplasherLocationOnEachLevel, SplasherPowerLocation, SplashersLocation
-from .options import CheckpointSanity, IncludeKeys, IncludeMedals, SplasherOptions,RandomizePowers
+from .options import CheckpointSanity, IncludeKeys, IncludeMedals, SplasherOptions, RandomizePowers, CheckpointPacks
 
 class SplasherWorld(World):
     """
@@ -33,28 +33,6 @@ class SplasherWorld(World):
         regions.connect_regions(self)
         SplasherLocation.create_locations(self)
         self.__set_power_rules()
-
-        location = self.multiworld.get_location("Welcome to Inkorp - Checkpoint 3", self.player)
-        print(f"Location rule : {location.access_rule}")
-
-        current_region = location.parent_region
-        while current_region is not None:
-            print(f"\nRegion: {current_region.name}")
-            
-            # If the region has no entrances, we've hit the root/hub
-            if not current_region.entrances:
-                print("-- ROOT REGION --")
-                break
-                
-            # Inspect all doors leading into this region
-            for entrance in current_region.entrances:
-                print(f"  <- Entrance: '{entrance.name}'")
-                if entrance.parent_region is not None: print(f"     From parent region: '{entrance.parent_region.name}'")
-                print(f"     Access rule: {entrance.access_rule}")
-                
-            # Move up to the next parent region via the first entrance
-            # (Assuming linear nesting; if multiple, you'd trace them all)
-            current_region = current_region.entrances[0].parent_region
 
     def create_item(self, name: str) -> SplasherItem:
         return SplasherItem(name, self.player, self.options)
@@ -98,7 +76,14 @@ class SplasherWorld(World):
                 pass
 
         if (self.options.checkpoint_sanity > CheckpointSanity.option_off):
-            itempool += [SplasherItem(x, self.player, self.options) for x in SplasherCheckpoint.items()]
+            print(self.options.checkpoint_packs)
+            match(self.options.checkpoint_packs):
+                case CheckpointPacks.option_singular:
+                    itempool += [SplasherItem(x, self.player, self.options) for x in SplasherCheckpoint.items()]
+                case CheckpointPacks.option_level:
+                    itempool += [SplasherItem(x, self.player, self.options) for x in SplasherCheckpointLevel.items()]
+                case _:
+                    pass
 
         itempool += SplasherFiller.get_remaining(
             self.player, self.options,

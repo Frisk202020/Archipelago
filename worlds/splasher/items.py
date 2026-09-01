@@ -55,7 +55,7 @@ class SplasherFiller:
         "Essence drop", "Essence drops", "Broken essence flask",
         "Full essence flask", "Dry essence barrel", "Essence barrel",
         "Overflowing essence barrel", "Goombase essence tank",
-        "Secretaire essence tank", "Docteur's essence storage"
+        "Secretaire's essence tank", "Docteur's essence storage"
     ] # 1, 2, 5, 10, 15, 20, 25, 30, 40, 50
     essence_traps: ClassVar[list[str]] = [
         "Minor essence leak", "Small essence leak", "Noticeable essence leak",
@@ -123,6 +123,15 @@ class SplasherCheckpoint:
                 out.append(cls.name(i, j))
 
         return out
+
+class SplasherCheckpointLevel:
+    @staticmethod
+    def name(level: int) -> str:
+        return f"{SplasherUtils.level_names[level]} - Checkpoints Pack"
+
+    @classmethod
+    def items(cls) -> list[str]:
+        return [cls.name(i) for i in range(SplasherUtils.level_count)]
     
 class _ItemData:
     code: int
@@ -174,6 +183,9 @@ class _ItemData:
         for name in SplasherCheckpoint.items():
             cls.__data_table[name] = _ItemData(lambda opt: ItemClassification.progression if opt.checkpoint_sanity == CheckpointSanity.option_progression else ItemClassification.useful)
 
+        for name in SplasherCheckpointLevel.items():
+            cls.__data_table[name] = _ItemData(lambda opt: ItemClassification.progression if opt.checkpoint_sanity == CheckpointSanity.option_progression else ItemClassification.useful)
+
         return _ItemData.__data_table
     
     @classmethod
@@ -188,6 +200,7 @@ class _ItemData:
         out["Zone Keys"] = set(SplasherZoneKey.keys(False))
         out["Zone Keys - Time Attack"] = set(SplasherZoneKey.keys(True))
         out["Checkpoints"] = set(SplasherCheckpoint.items())
+        out["Level Checkpoint Packs"] = set(SplasherCheckpointLevel.items())
 
         return out
 

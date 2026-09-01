@@ -5,7 +5,7 @@ from BaseClasses import Region
 from rule_builder.rules import Has
 
 from .rules import SplasherArea
-from .items import SplasherCheckpoint, SplasherKey, SplasherZoneKey
+from .items import SplasherCheckpoint, SplasherCheckpointLevel, SplasherKey, SplasherZoneKey
 from .options import CheckpointSanity, IncludeKeys, IncludeMedals
 from .utils import SplasherUtils
 
@@ -81,7 +81,7 @@ def connect_regions(world: SplasherWorld):
                 ckp_region_name = splasher_ckp_region_name(level, ckp_id)
                 ckp_region = world.get_region(ckp_region_name)
 
-                rule = None if is_exit_area else Has(SplasherCheckpoint.name(lvl, ckp_id))
+                rule = None if is_exit_area else (Has(SplasherCheckpoint.name(lvl, ckp_id)) | Has(SplasherCheckpointLevel.name(lvl)))
                 area = level_region if area_id is None else level_areas[area_id] 
                 area.connect(ckp_region, f"{level} : Validate checkpoint {ckp_id+1}", rule)
 

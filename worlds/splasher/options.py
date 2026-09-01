@@ -28,21 +28,6 @@ class IncludeSpeedrunKeys(Toggle):
     """
     display_name = "Include Speedrun Keys"
 
-# Will be implemented in future updates
-class RandomizeCheckpoints(Choice):
-    """
-    Determine if level checkpoints are added to the item pool
-
-    Off - Not included
-    Required - Included in pool, but as a progression item (consider items after a locked checkpoint are unreachable)
-    Chaotic - Included in pool, but as an useful item
-    """
-    display_name = "Randomize level checkpoints"
-    option_off = 0
-    option_required = 1
-    option_chaotic = 2
-    default = option_off
-
 class EssenceStorage(Choice):
     """
     Determine how to include essence storage items in the pool. Essence storage lowers permanently the goal to save the golden splasher, these are useful items included as filler.
@@ -239,6 +224,17 @@ class CheckpointSanity(Choice):
     option_useful = 1
     option_progression = 2
 
+class CheckpointPacks(Choice):
+    """
+    Determine how checkpoint items are included : **only relevant if `Checkpoint Sanity` is not `off`**
+
+    Singular - Each checkpoint gets its own item
+    Level - Checkpoints are unlocked by level
+    """
+    display_name = "Checkpoint packs"
+    option_singular = 0
+    option_level = 1
+
 @dataclass
 class SplasherOptions(PerGameCommonOptions):
     essence_storage: EssenceStorage
@@ -257,6 +253,7 @@ class SplasherOptions(PerGameCommonOptions):
     trap_amnesty: TrapAmnesty
     trap_death_amnesty: TrapDeathAmnesty
     checkpoint_sanity: CheckpointSanity
+    checkpoint_packs: CheckpointPacks
     # essence_sanity: EssenceSanity
 
 # Can't attach option_groups in SplasherOptions as it crashes Generate Template Options
@@ -267,7 +264,7 @@ class SplasherOptionExports:
             [
                 RandomizePowers, ProgressiveWater, RandomizeGoldenSplashers, 
                 IncludeMedals, IncludeKeys, IncludeSpeedrunKeys, SplasherPool,
-                CheckpointSanity
+                CheckpointSanity, CheckpointPacks
             ]
         ), OptionGroup(
             "Goal",
