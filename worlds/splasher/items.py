@@ -19,12 +19,7 @@ class SplasherKey:
         return [cls.key(i, speedrun) for i in range(1, SplasherUtils.level_count)]
     
 class SplasherZoneKey:
-    __keys: ClassVar[list[str]] = [f"{x} : Zone Keys" for x in [
-        "Reception Hub", "Water Pool", 
-        "Ray Man Paradise", "Toxink Hell",
-        "Inkorp Outskirts", "Fun Park",
-        "Docteur's Office"
-    ]]
+    __keys: ClassVar[list[str]] = [f"{x} : Zone Keys" for x in SplasherUtils.zone_names]
 
     @staticmethod
     def __key_name(key: str, speedrun: bool) -> str:
@@ -37,16 +32,7 @@ class SplasherZoneKey:
 
     @classmethod
     def key(cls, id: int, speedrun: bool) -> str:
-        match(id):
-            case 1 | 2 | 6 : i = 0
-            case 4 | 5 | 8 | 12 : i = 1
-            case 7 | 11 | 17 | 19 : i = 2
-            case 15 | 18 | 20 : i = 3
-            case 10 | 13 | 16 : i = 4
-            case 3 | 9 | 14 : i = 5
-            case 21 : i = 6
-            case _ : return ""
-        return cls.__key_name(cls.__keys[i], speedrun)
+        return cls.__key_name(cls.__keys[SplasherUtils.zone_for_level(id)], speedrun)
     
 class SplasherFiller:
     filler: ClassVar[list[str]] = ["Job Promotion", "Le Docteur's autograph", "A Secreatire's ticket"]
@@ -132,6 +118,15 @@ class SplasherCheckpointLevel:
     @classmethod
     def items(cls) -> list[str]:
         return [cls.name(i) for i in range(SplasherUtils.level_count)]
+
+class SplasherCheckpointZone:
+    @staticmethod
+    def name(zone: str) -> str:
+        return f"{zone} - Checkpoints Pack"
+
+    @classmethod
+    def items(cls):
+        return [cls.name(x) for x in SplasherUtils.zone_names]
     
 class _ItemData:
     code: int
@@ -180,10 +175,7 @@ class _ItemData:
         for name in SplasherZoneKey.keys(True):
             cls.__data_table[name] = _ItemData()
 
-        for name in SplasherCheckpoint.items():
-            cls.__data_table[name] = _ItemData(lambda opt: ItemClassification.progression if opt.checkpoint_sanity == CheckpointSanity.option_progression else ItemClassification.useful)
-
-        for name in SplasherCheckpointLevel.items():
+        for name in [*SplasherCheckpoint.items(), *SplasherCheckpointLevel.items(), *SplasherCheckpointZone.items()]:
             cls.__data_table[name] = _ItemData(lambda opt: ItemClassification.progression if opt.checkpoint_sanity == CheckpointSanity.option_progression else ItemClassification.useful)
 
         return _ItemData.__data_table

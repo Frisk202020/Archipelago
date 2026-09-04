@@ -27,3 +27,22 @@ class SplasherUtils:
         if (i < 0 or i > 21):
             return f"Invalid level ({i})"
         return cls.speedrun_names[i] if speedrun else cls.level_names[i]
+
+    zone_names: ClassVar[list[str]]  = [
+        "Reception Hub", "Water Pool", 
+        "Ray Man Paradise", "Toxink Hell",
+        "Inkorp Outskirts", "Fun Park",
+        "Docteur's Office"
+    ]
+
+    @classmethod
+    def zone_for_level(cls, level: int):
+        match(level):
+            case 0 | 1 | 2 | 6 : return 0
+            case 4 | 5 | 8 | 12 : return 1
+            case 7 | 11 | 17 | 19 : return 2
+            case 15 | 18 | 20 : return 3
+            case 10 | 13 | 16 : return 4
+            case 3 | 9 | 14 : return 5
+            case 21 : return 6
+            case _ : raise Exception(f"Unrecognized level id : {level}")

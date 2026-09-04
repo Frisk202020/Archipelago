@@ -8,7 +8,7 @@ from .rules import SplasherPowerRules, SplasherRule
 from .utils import SplasherUtils
 from .web import SplasherWebWorld
 from . import regions
-from .items import SplasherCheckpoint, SplasherCheckpointLevel, SplasherFiller, SplasherItem, SplasherKey, SplasherPowerItem, SplasherZoneKey
+from .items import SplasherCheckpoint, SplasherCheckpointLevel, SplasherCheckpointZone, SplasherFiller, SplasherItem, SplasherKey, SplasherPowerItem, SplasherZoneKey
 from .locations import SplasherLocation, SplasherLocationOnEachLevel, SplasherPowerLocation, SplashersLocation
 from .options import CheckpointSanity, IncludeKeys, IncludeMedals, SplasherOptions, RandomizePowers, CheckpointPacks
 
@@ -76,12 +76,13 @@ class SplasherWorld(World):
                 pass
 
         if (self.options.checkpoint_sanity > CheckpointSanity.option_off):
-            print(self.options.checkpoint_packs)
             match(self.options.checkpoint_packs):
                 case CheckpointPacks.option_singular:
                     itempool += [SplasherItem(x, self.player, self.options) for x in SplasherCheckpoint.items()]
                 case CheckpointPacks.option_level:
                     itempool += [SplasherItem(x, self.player, self.options) for x in SplasherCheckpointLevel.items()]
+                case CheckpointPacks.option_zone:
+                    itempool += [SplasherItem(x, self.player, self.options) for x in  SplasherCheckpointZone.items()]
                 case _:
                     pass
 

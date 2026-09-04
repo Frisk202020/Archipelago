@@ -234,6 +234,7 @@ class CheckpointPacks(Choice):
     display_name = "Checkpoint packs"
     option_singular = 0
     option_level = 1
+    option_zone = 2
 
 @dataclass
 class SplasherOptions(PerGameCommonOptions):
