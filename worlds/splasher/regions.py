@@ -81,7 +81,7 @@ def connect_regions(world: SplasherWorld):
                 ckp_region_name = splasher_ckp_region_name(level, ckp_id)
                 ckp_region = world.get_region(ckp_region_name)
 
-                rule = None if is_exit_area else (
+                rule = None if is_exit_area or world.options.instant_splasher_collect else (
                     Has(SplasherCheckpoint.name(lvl, ckp_id)) | 
                     Has(SplasherCheckpointLevel.name(lvl)) |
                     Has(SplasherCheckpointZone.name(SplasherUtils.zone_names[SplasherUtils.zone_for_level(lvl)]))

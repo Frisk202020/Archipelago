@@ -236,6 +236,15 @@ class CheckpointPacks(Choice):
     option_level = 1
     option_zone = 2
 
+class InstantSplasherCollect(Toggle):
+    """
+    Determine if all splashers should be instantly collected. 
+    By default, they are collected after reaching a checkpoint (except for vortex splashers).
+
+    When enabled, enabling `Checkpoint Sanity` to `progressive` is useless.
+    """
+    display_name = "Instant Splasher Collect"
+
 @dataclass
 class SplasherOptions(PerGameCommonOptions):
     essence_storage: EssenceStorage
@@ -255,6 +264,7 @@ class SplasherOptions(PerGameCommonOptions):
     trap_death_amnesty: TrapDeathAmnesty
     checkpoint_sanity: CheckpointSanity
     checkpoint_packs: CheckpointPacks
+    instant_splasher_collect: InstantSplasherCollect
     # essence_sanity: EssenceSanity
 
 # Can't attach option_groups in SplasherOptions as it crashes Generate Template Options
