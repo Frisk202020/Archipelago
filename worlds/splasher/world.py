@@ -1,6 +1,7 @@
 from typing import Any
 from math import floor
 
+from BaseClasses import LocationProgressType
 from rule_builder.rules import Has
 from worlds.AutoWorld import World
 
@@ -10,7 +11,7 @@ from .web import SplasherWebWorld
 from . import regions
 from .items import SplasherCheckpoint, SplasherCheckpointLevel, SplasherCheckpointZone, SplasherFiller, SplasherItem, SplasherKey, SplasherPowerItem, SplasherZoneKey
 from .locations import SplasherLocation, SplasherLocationOnEachLevel, SplasherPowerLocation, SplashersLocation
-from .options import CheckpointSanity, IncludeKeys, IncludeMedals, SplasherOptions, RandomizePowers, CheckpointPacks
+from .options import CheckpointSanity, IncludeKeys, IncludeMedals, RandomizeGoldenSplashers, SplasherOptions, RandomizePowers, CheckpointPacks
 
 class SplasherWorld(World):
     """
@@ -148,9 +149,16 @@ class SplasherWorld(World):
 
         if not (self.options.randomize_golden_splashers):
             for i in range(22):
-                self.get_location(
-                    SplashersLocation.fullname(i, None)
-                ).place_locked_item(SplasherItem(SplasherUtils.splasher, self.player, self.options))
+                loc = self.get_location(SplashersLocation.fullname(i, None))
+
+                match(self.options.randomize_golden_splashers):
+                    case RandomizeGoldenSplashers.option_vanilla:
+                        loc.place_locked_item(SplasherItem(SplasherUtils.splasher, self.player, self.options))
+                    case RandomizeGoldenSplashers.option_filler:
+                        loc.progress_type = LocationProgressType.EXCLUDED
+                    case RandomizeGoldenSplashers.option_progression:
+                        loc.progress_type = LocationProgressType.PRIORITY
+                    case _: pass
 
         SplasherRule.apply(self)
 

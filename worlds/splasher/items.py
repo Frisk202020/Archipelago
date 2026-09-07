@@ -59,9 +59,11 @@ class SplasherFiller:
         trap_chance: int, essence_storage: int, essence_traps: int, rng: Random
     ) -> list[SplasherItem]:
         out: list[SplasherItem] = []
-        pool = cls.filler + [cls.essence[i] for i in range(essence_storage)]
-        trap_pool = cls.trap + [cls.essence_traps[i] for i in range(essence_traps)]
+        pool = [cls.essence[i] for i in range(essence_storage)]
+        if (len(pool) == 0 or not options.exclude_useless_filler):
+            pool += cls.filler
 
+        trap_pool = cls.trap + [cls.essence_traps[i] for i in range(essence_traps)]
         for _ in range(request):
             item = SplasherFiller.random_item(trap_pool, rng) if rng.randint(0, 99) < trap_chance else SplasherFiller.random_item(pool, rng)
             out.append(SplasherItem(item, player, options))

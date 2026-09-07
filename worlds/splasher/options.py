@@ -95,11 +95,21 @@ class ProgressiveWater(DefaultOnToggle):
     """
     display_name = "Progressive Water"
 
-class RandomizeGoldenSplashers(DefaultOnToggle):
+class RandomizeGoldenSplashers(Choice):
     """
-    Determine if golden splashers are added in the item pool
+    Determine how golden splashers are added in the item pool
+
+    Vanilla - Golden splashers are forced to reward a Splasher (even if the SplasherPool option states otherwise)
+    Filler - Golden splashers are forced to reward a filler item (for you or another player)
+    Unconstrained - Golden splashers can reward any item of the multiworld
+    Progression - Golden splashers are forced to reward a progression item (for you or another player)
     """
     display_name = "Randomize Golden Splashers"
+    option_vanilla = 0
+    option_filler = 1
+    option_unconstrained = 2
+    option_progression = 3
+    default = option_unconstrained
 
 # Traps will be implemented in a future update
 class TrapChance(Range):
@@ -245,6 +255,13 @@ class InstantSplasherCollect(Toggle):
     """
     display_name = "Instant Splasher Collect"
 
+class ExcludeUselessFiller(Toggle):
+    """
+    Determine if useless filler items should be added to the pool.
+    If essence items are not enabled, this option will be necessarily `false` whatever the actual choice is.
+    """
+    display_name = "Exclude Useless Filler"
+
 @dataclass
 class SplasherOptions(PerGameCommonOptions):
     essence_storage: EssenceStorage
@@ -265,6 +282,7 @@ class SplasherOptions(PerGameCommonOptions):
     checkpoint_sanity: CheckpointSanity
     checkpoint_packs: CheckpointPacks
     instant_splasher_collect: InstantSplasherCollect
+    exclude_useless_filler: ExcludeUselessFiller
     # essence_sanity: EssenceSanity
 
 # Can't attach option_groups in SplasherOptions as it crashes Generate Template Options
@@ -275,7 +293,7 @@ class SplasherOptionExports:
             [
                 RandomizePowers, ProgressiveWater, RandomizeGoldenSplashers, 
                 IncludeMedals, IncludeKeys, IncludeSpeedrunKeys, SplasherPool,
-                CheckpointSanity, CheckpointPacks
+                CheckpointSanity, CheckpointPacks, InstantSplasherCollect
             ]
         ), OptionGroup(
             "Goal",
