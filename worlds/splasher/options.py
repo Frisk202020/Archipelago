@@ -238,7 +238,7 @@ class CheckpointSanity(Choice):
 
 class CheckpointPacks(Choice):
     """
-    Determine how checkpoint items are included : **only relevant if `Checkpoint Sanity` is not `off`**
+    Determine how checkpoint items are included : **only relevant if `Checkpoint Sanity` is not `off` or `no_items`**
 
     Singular - Each checkpoint gets its own item
     Level - Checkpoints are unlocked by level
