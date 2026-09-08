@@ -226,13 +226,15 @@ class CheckpointSanity(Choice):
     What the checkpoint item rewards depends on the chosen option.
 
     Off - checkpoints behave as in vanilla
+    No Items - Add checkpoint locations, without the corresponding items (meaning those behave as in vanilla). This adds filler items.
     Useful - Checkpoints won't save your progress if you don't have the item. Items are `Useful` meaning these aren't required to collect any item.
     Progression - Checkpoints won't have any effect if you don't have the item : progress is not saved, splashers aren't collected, traps aren't revoked and essence is not rewarded.
     """
     display_name = "Checkpoint Sanity"
     option_off = 0
-    option_useful = 1
-    option_progression = 2
+    option_no_items = 1
+    option_useful = 2
+    option_progression = 3
 
 class CheckpointPacks(Choice):
     """
@@ -289,11 +291,16 @@ class SplasherOptions(PerGameCommonOptions):
 class SplasherOptionExports:
     option_groups: ClassVar[list[OptionGroup]] = [
         OptionGroup(
-            "Randomizer options",
+            "Main Progression",
             [
-                RandomizePowers, ProgressiveWater, RandomizeGoldenSplashers, 
-                IncludeMedals, IncludeKeys, IncludeSpeedrunKeys, SplasherPool,
-                CheckpointSanity, CheckpointPacks, InstantSplasherCollect
+                RandomizePowers, ProgressiveWater, CheckpointSanity,
+                IncludeMedals, IncludeKeys, IncludeSpeedrunKeys
+            ]
+        ), OptionGroup(
+            "Randomizer QoL",
+            [
+                RandomizeGoldenSplashers, SplasherPool, CheckpointPacks, 
+                InstantSplasherCollect, ExcludeUselessFiller
             ]
         ), OptionGroup(
             "Goal",

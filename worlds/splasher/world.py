@@ -76,7 +76,7 @@ class SplasherWorld(World):
             case _:
                 pass
 
-        if (self.options.checkpoint_sanity > CheckpointSanity.option_off):
+        if (self.options.checkpoint_sanity > CheckpointSanity.option_no_items):
             match(self.options.checkpoint_packs):
                 case CheckpointPacks.option_singular:
                     itempool += [SplasherItem(x, self.player, self.options) for x in SplasherCheckpoint.items()]

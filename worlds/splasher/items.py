@@ -187,7 +187,7 @@ class _ItemData:
         out: dict[str, set[str]] = {}
         out["Powers"] = set(SplasherPowerItem.literals())
         out["Filler"] = set(SplasherFiller.filler)
-        out["Traps"] = set(SplasherFiller.trap)
+        out["Traps"] = set(SplasherFiller.trap + SplasherFiller.essence_traps)
         out["Essence"] = set(SplasherFiller.essence)
         out["Level Keys"] = set(SplasherKey.keys(False))
         out["Level Keys - Time Attack"] = set(SplasherKey.keys(True))
